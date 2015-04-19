@@ -1,0 +1,4148 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Dart.Sockets</name>
+    </assembly>
+    <members>
+        <member name="T:Dart.Sockets.UdpBase">
+            <summary>
+            Base class for upper-layer protocols based on UDP.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.SocketBase">
+            <summary>
+            Base class for PowerTCP Components.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ComponentBase">
+            <summary>
+            Base class for PowerTCP Components.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.Deserialize(System.IO.Stream)">
+            <summary>
+            Deserialize a previously serialized object.
+            </summary>
+            <param name="serializedObject">The previously serialized object.</param>
+            <remarks>
+            Provides a simple mechanism for restoring a previously serialized state.
+            For example, the state (all runtime parameters) of a Session object could be saved.
+            The provided serializedObject is read from its current position.
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.Serialize(System.Object,System.IO.Stream)">
+            <summary> 
+            Serialize an object to the provided destination stream.
+            </summary>
+            <remarks>
+            Can be used at runtime to persist the state of an object.
+            For example, all runtime parameters of a Session object could be saved.
+            </remarks>
+            <returns><see cref="T:System.IO.MemoryStream"/>.</returns>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.Marshal(System.String,System.Object)">
+            <summary>
+            Marshals a string and/or object to the UI thread.
+            </summary>
+            <param name="message">The message to be marshaled.</param>
+            <param name="state">The user state information to be marshaled. Can be null.</param>
+            <remarks>
+                <para>
+                Used to marshal a string and/or object from a worker thread to the UI thread 
+                for typical display purposes. 
+                It calls <see cref="M:Dart.Sockets.ComponentBase.OnUserState(Dart.Sockets.UserStateEventArgs)"/>, which raises the <see cref="E:Dart.Sockets.ComponentBase.UserState"/> event.
+                </para>
+                <para>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.Marshal(System.Exception)">
+            <summary>
+            Marshals an exception to the UI thread.
+            </summary>
+            <param name="exception">The Exception to be marshaled.</param>
+            <remarks>
+                <para>
+                Used to marshal exceptions from a worker thread to the UI thread for typical display purposes.  
+                It calls <see cref="M:Dart.Sockets.ComponentBase.OnError(Dart.Sockets.ErrorEventArgs)"/>, which raises the <see cref="E:Dart.Sockets.ComponentBase.Error"/> event.
+                </para>
+                <para>
+                When Start is used, unhandled exceptions generated on worker threads are marshaled to the UI thread
+                by this method.
+                </para>
+                <para>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.VirtualWorkerDelegate(Dart.Sockets.ComponentBase.WorkerWrapperParams)">
+            <summary>
+            Override this method in derived classes. Used because Delegate.DynamicInvoke() is not in CF.
+            </summary>
+            <param name="p"></param>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.OnUserState(Dart.Sockets.UserStateEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.ComponentBase.UserState"/> event.
+            </summary>
+            <param name="e">A <see cref="T:Dart.Sockets.UserStateEventArgs"/> object that contains the user information.</param>
+            <remarks>
+            If the Synchronizing property is set, this method invokes <see cref="E:Dart.Sockets.ComponentBase.UserState"/> asynchronously on the UI thread.
+            If the Synchronizing property is null, this method invokes UserState on the executing thread.
+            <para>
+            OnUserState allows derived classes to handle the event without attaching a delegate. 
+            This is the preferred technique for handling the event in a derived class, but marshaling is not provided.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnUserState in a derived class, 
+            be sure to call the base class OnUserState method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.ComponentBase.OnError(Dart.Sockets.ErrorEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.ComponentBase.Error"/> event.
+            </summary>
+            <param name="e">A <see cref="T:Dart.Sockets.ErrorEventArgs"/> object that contains the exception.</param>
+            <remarks>
+            If the Synchronizing property is set, this method invokes <see cref="E:Dart.Sockets.ComponentBase.Error"/> asynchronously on the UI thread.
+            If the Synchronizing property is null, this method invokes the Error event on the executing thread.
+            <para>
+            OnError allows derived classes to handle the Error event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnError in a derived class, 
+            be sure to call the base class OnError method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.ComponentBase.SynchronizingObject">
+            <summary>
+            Gets or sets the object used to marshal data to the UI thread (for raising events). 
+            </summary>
+            <remarks>
+                <para>
+                This property determines the thread on which the component's event handlers are raised. If set
+                to a UI control, events are raised on the UI thread. If null, events are raised on the current thread.
+                </para>
+                <para>
+                This property is automatically set to the containing control when used in the Windows Forms designer. 
+                When a derived class is dynamically created this property must be set if marshaling
+                to the UI thread is desired.
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Dart.Sockets.ComponentBase.UserState">
+            <summary>
+            Raised when <see cref="M:Dart.Sockets.ComponentBase.Marshal(System.String,System.Object)"/> is used.
+            </summary>
+            <remarks>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+        </member>
+        <member name="E:Dart.Sockets.ComponentBase.Error">
+            <summary>
+            Raised when <see cref="M:Dart.Sockets.ComponentBase.Marshal(System.Exception)"/> is used or an unhandled Exception is thrown in a worker thread created using Start.
+            </summary>
+            <remarks>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.ComponentBase.Encoding">
+            <summary>
+            Character encoding used by the component.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ComponentBase.Tag">
+            <summary>
+            Gets or sets an object that stores any user data.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.SocketBase.Socket">
+            <summary>
+            Gets the socket used by the component for communications.
+            </summary>
+            <value>The <see cref="T:System.Net.Sockets.Socket">Socket</see> used for UDP or TCP communications. Returns null when not in use.</value>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.#ctor">
+            <summary>
+            Default constructor for UdpBase
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Open(System.Int32)">
+            <summary>
+            Opens a socket on a default IP interface and the specified port to listen for incoming datagrams.
+            </summary>
+            <param name="port">The port to listen on for incoming datagrams.</param>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Open(System.Net.IPEndPoint)">
+            <summary>
+            Opens a socket on the specified local IPEndPoint to listen for incoming datagrams.
+            </summary>
+            <param name="localEP">The <see cref="T:System.Net.IPEndPoint"/> for sending and receiving datagrams. Can specify a port range
+            by using <see cref="T:Dart.Sockets.IPEndPoint"/>.</param>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Close">
+            <summary>
+            Close the socket and release all resources.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.JoinMulticastGroup(System.Net.IPAddress)">
+            <summary>
+            Join the specified multicast group for receiving datagrams.
+            </summary>
+            <remarks>
+            <p>
+            Use the JoinMulticastGroup method to join a multicast group. Useful when
+            you wish for datagrams to be sent to multiple hosts. The host
+            is able to receive all datagrams sent to the specified multicast address
+            and port.
+            </p>
+            <p>
+            Multicast groups are specified as an IP Address within a specified 
+            range of addresses. This group of addresses, also know as class D IP 
+            Addresses, are in the range from 224.0.0.0 through 239.255.255.255. In 
+            order to receive packets sent to a multicast group (using Receive), you must first join 
+            the group using this method.
+            </p>
+            <p>
+            Using multicasting over broadcasting reduces the load on hosts that are not
+            interested in the data sent.
+            </p>
+            </remarks>
+            <param name="groupAddress">The System.Net.IPAddress specifying the multicast group address to join.</param>
+            <exception cref="T:System.Net.Sockets.SocketException">The multicast address is unknown, invalid, or unable to be resolved.</exception>
+            <example>The following example demonstrates joining and leaving a multicast group.
+      <code lang="C#">
+//The following example demonstrates joining and leaving a multicast group.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    byte[] buffer = new byte[1024];
+    System.Net.IPAddress groupIP = new IPEndPoint("234.5.6.7", 0).Address;
+    udp1.Open(59877);
+    udp1.JoinMulticastGroup(groupIP);
+    udp1.Send("hello world", new IPEndPoint(groupIP, 59877));
+    udp1.Receive(buffer);
+    udp1.LeaveMulticastGroup(groupIP);
+}
+        </code>
+				<code lang="VB">
+'The following example demonstrates joining and leaving a multicast group.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	Dim buffer() As Byte = New Byte(1023){}
+	Dim groupIP As System.Net.IPAddress = New IPEndPoint("234.5.6.7", 0).Address
+	udp1.Open(59877)
+	udp1.JoinMulticastGroup(groupIP)
+	udp1.Send("hello world", New IPEndPoint(groupIP, 59877))
+	udp1.Receive(buffer)
+	udp1.LeaveMulticastGroup(groupIP)
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.LeaveMulticastGroup(System.Net.IPAddress)">
+            <summary>
+            Leave the specified multicast group for receiving datagrams.
+            </summary>
+            <remarks>
+            <p>
+            Use LeaveMulticastGroup to leave a multicast group. <i>groupAddress</i> specifies the
+            multicast address group to leave. The host will no longer be 
+            able to receive datagrams sent to the multicasted address group. The host will still be listening
+            and will still be able to receive datagrams sent to the host's
+            local address/port.
+            </p>
+            </remarks>
+            <param name="groupAddress">The System.Net.IPAddress specifying the multicast group address to leave.</param>
+            <exception cref="T:System.Net.Sockets.SocketException">The multicast address is unknown, invalid, or unable to be resolved.</exception>
+            <example>The following example demonstrates joining and leaving a multicast group.
+      <code lang="C#">
+//The following example demonstrates joining and leaving a multicast group.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    byte[] buffer = new byte[1024];
+    System.Net.IPAddress groupIP = new IPEndPoint("234.5.6.7", 0).Address;
+    udp1.Open(59877);
+    udp1.JoinMulticastGroup(groupIP);
+    udp1.Send("hello world", new IPEndPoint(groupIP, 59877));
+    udp1.Receive(buffer);
+    udp1.LeaveMulticastGroup(groupIP);
+}
+        </code>
+				<code lang="VB">
+'The following example demonstrates joining and leaving a multicast group.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	Dim buffer() As Byte = New Byte(1023){}
+	Dim groupIP As System.Net.IPAddress = New IPEndPoint("234.5.6.7", 0).Address
+	udp1.Open(59877)
+	udp1.JoinMulticastGroup(groupIP)
+	udp1.Send("hello world", New IPEndPoint(groupIP, 59877))
+	udp1.Receive(buffer)
+	udp1.LeaveMulticastGroup(groupIP)
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Receive(System.Byte[])">
+            <summary>
+            Receive a datagram.
+            </summary>
+            <param name="buffer">A byte array to be filled with the data received.</param>
+            <remarks>
+            <p>Use the Receive method to receive a datagram into <i>buffer</i>.
+            This method also returns a Datagram object encapsulating
+            the datagram received. <see cref="F:Dart.Sockets.Segment.Buffer"/> contains the actual datagram data (equivalent to <i>buffer</i>). 
+            <see cref="F:Dart.Sockets.Datagram.Origin"/> contains
+            the endpoint of the remote host from which the datagram was sent.
+            </p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram received.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Receive(System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags)">
+            <summary>
+            Receive a datagram.
+            </summary>
+            <param name="buffer">A byte array to be filled with the data received.</param>
+            <param name="offset">Location where received bytes are to placed.</param>
+            <param name="size">The number of bytes to receive.</param>
+            <param name="socketFlags">User specified SocketFlags.</param>
+            <remarks>
+            <p>Use the Receive method to receive a datagram into <i>buffer</i>.
+            This method also returns a Datagram object encapsulating
+            the datagram received. <see cref="F:Dart.Sockets.Segment.Buffer"/> contains the actual datagram data (equivalent to <i>buffer</i>). 
+            <see cref="F:Dart.Sockets.Datagram.Origin"/> contains
+            the endpoint of the remote host from which the datagram was sent.
+            </p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram received. Null when the socket is closed.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.ReceiveAsync(System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,Dart.Sockets.ReceiveAsyncCompleted,System.Object)">
+            <summary>
+            Receive a datagram asynchronously.
+            </summary>
+            <param name="buffer">A byte array to be filled with the data received.</param>
+            <param name="offset">Location where received bytes are to placed.</param>
+            <param name="size">The number of bytes to receive.</param>
+            <param name="socketFlags">User specified SocketFlags.</param>
+            <param name="worker">A ReceiveAsyncComplete delegate that will be raised with the new datagram.</param>
+            <param name="state">Any user-specified object.</param>
+            <remarks>
+            <p>Use the ReceiveAsync method to receive a datagram into <i>buffer</i> asynchronously.
+            This method returns immediately and raises the provided ReceiveAsyncCompleted delegate
+            on an IO Completion thread after a datagram has been received.
+            </p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            </remarks>
+            <returns>
+            A Datagram object encapsulating the datagram received.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Send(System.String,System.String,System.Int32)">
+            <summary>
+            Send a datagram to the specified remote address and port.
+            </summary>
+            <remarks>
+            <p>Use the Send method to sent a datagram created from the data contained
+            in <i>buffer</i> to the specified <i>hostNameOrAddress</i> and <i>port</i>. <i>buffer</i> is
+            converted to a byte array before sending.</p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, any datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            <p>To send a broadcast datagram, use "255.255.255.255" as the remote address. To send
+            a multicast datagram, use the multicast group address as the remote address after first joining a multicast group by using JoinMulitcastGroup.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram sent.
+            </returns>
+            <param name="buffer">A string containing the data to send.</param>
+            <param name="hostNameOrAddress">The host address (either dot address or hostname) to send the datagram to.</param>
+            <param name="port">The host port to send the datagram to.</param>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">The remote address is unknown, invalid, or unable to be resolved.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The remote port is out of the range of valid values.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Send(System.Byte[],System.String,System.Int32)">
+            <summary>
+            Send a datagram to the specified remote address and port.
+            </summary>
+            <remarks>
+            <p>Use the Send method to sent a datagram created from the data contained
+            in <i>buffer</i> to the specified <i>hostNameOrAddress</i> and <i>port</i>.</p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, any datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            <p>To send a broadcast datagram, use "255.255.255.255" as the remote address. To send 
+            a multicast datagram, use the multicast group address as the remote address after first joining a multicast group by using JoinMulitcastGroup.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram sent.
+            </returns>
+            <param name="buffer">A byte array containing the data to send.</param>
+            <param name="hostNameOrAddress">The host address (either dot address or hostname) to send the datagram to.</param>
+            <param name="port">The host port to send the datagram to.</param>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">The remote address is unknown, invalid, or unable to be resolved.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The remote port is out of the range of valid values.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Send(System.String,System.Net.IPEndPoint)">
+            <summary>
+            Send a datagram to the specified IPEndPoint.
+            </summary>
+            <remarks>
+            <p>Use the Send method to sent a datagram created from the data contained
+            in <i>buffer</i> to the specified <i>hostNameOrAddress</i>. <i>buffer</i> is
+            converted to a byte array before sending.</p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, any datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            <p>To send a broadcast datagram, use "255.255.255.255" as the remote address. To send 
+            a multicast datagram, use the multicast group address as the remote address after first joining a multicast group by using JoinMulitcastGroup.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram sent.
+            </returns>
+            <param name="buffer">A string containing the data to send.</param>
+            <param name="destination">The <see cref="T:System.Net.IPEndPoint"/> representing the remote hosts's IP address and port.</param>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">The remote address is unknown, invalid, or unable to be resolved.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The remote port is out of the range of valid values.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Send(System.Byte[],System.Net.IPEndPoint)">
+            <summary>
+            Send a datagram to the specified IPEndPoint.
+            </summary>
+            <remarks>
+            <p>Use the Send method to sent a datagram created from the data contained
+            in <i>buffer</i> to the specified <i>hostNameOrAddress</i>.</p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, any datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            <p>To send a broadcast datagram, use "255.255.255.255" as the remote address. To send 
+            a multicast datagram, use the multicast group address as the remote address after first joining a multicast group by using JoinMulitcastGroup.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram sent.
+            </returns>
+            <param name="buffer">A byte array containing the data to send.</param>
+            <param name="destination">The <see cref="T:System.Net.IPEndPoint"/> representing the remote hosts's IP address and port.</param>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">The remote address is unknown, invalid, or unable to be resolved.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The remote port is out of the range of valid values.</exception>
+        </member>
+        <member name="M:Dart.Sockets.UdpBase.Send(System.Byte[],System.Int32,System.Int32,System.Net.Sockets.SocketFlags,System.Net.IPEndPoint)">
+            <summary>
+            Send a datagram to the specified IPEndPoint, specifying a buffer, offset, length and SocketFlags value.
+            </summary>
+            <remarks>
+            <p>Use the Send method to sent a datagram created from the data contained
+            in <i>buffer</i> to the specified <i>hostNameOrAddress</i>.</p>
+            <p>
+            A UDP datagram provides little functionality over an IP datagram, adding a port 
+            number field (allows demultiplexing on the receiving host) and a checksum field
+            (provides basic error handling).
+            Unlike TCP, UDP datagrams are sent as a unit. If Send is called
+            3 times to send 3 datagrams to a host, the receiving host will have 
+            to call Receive 3 times. Also, the size of each datagram sent will equal
+            the size of each datagram received by the receiving host. In addition, since 
+            UDP is a connectionless protocol, any datagrams sent to the host are not 
+            guaranteed to be delivered. Therefore, any required error checking (outside of UDP's checksum
+            implementation) will have to be done by the application-layer protocol.
+            </p>
+            <p>To send a broadcast datagram, use "255.255.255.255" as the remote address. To send
+            a multicast datagram, use the multicast group address as the remote address after first joining a multicast group by using JoinMulitcastGroup.
+            </p>
+            </remarks>
+            <returns>
+            A <see cref="T:Dart.Sockets.Datagram"/> object encapsulating the datagram sent.
+            </returns>
+            <param name="buffer">A byte array containing the data to send.</param>
+            <param name="offset">Starting offset within buffer for sending.</param>
+            <param name="count">Number of bytes to send.</param>
+            <param name="socketFlags">A bitwise combination of special use sending parameters.</param>
+            <param name="destination">The <see cref="T:System.Net.IPEndPoint"/> representing the remote hosts's IP address and port.</param>
+            <exception cref="T:System.ArgumentNullException"><i>buffer</i> is null.</exception>
+            <exception cref="T:System.Net.Sockets.SocketException">The remote address is unknown, invalid, or unable to be resolved.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">The remote port is out of the range of valid values.<br>--or--</br><I>offset</I> or <I>count</I> is less than 0.</exception>
+            <exception cref="T:System.ArgumentException"><I>offset</I> + <I>count</I> is greater than the length of <I>buffer</I>.</exception>
+        </member>
+        <member name="P:Dart.Sockets.UdpBase.SocketOption">
+            <summary>
+            Gets the socket options for classes derived from UdpBase.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.UdpSocketOption">
+            <summary>
+            Contains socket options that may be set by UDP sockets.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.SocketOption">
+            <summary>
+            Contains socket options that may be set by TCP and UDP sockets. These options are automatically applied to the connection used.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.SocketOption.LocalEndPoint">
+            <summary>
+            Gets or sets the desired local IPEndPointRange (address, port, range) the socket should be bound to.
+            </summary>
+            <remarks>
+            Socket.Bind will be used bind the socket to the specified endpoint(s).
+            .mjb.11-17-10.Remove from public interface...set from within Connect() instead.
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.ExclusiveAddressUse">
+            <summary>
+            When set to true, forbids multiple socket bindings to the same address.
+            <remarks>Set this value to true to ensure you have exclusive use of the local endpoint. Socket.ExclusiveAddressUse is set to this
+            value before Socket.Bind is used.</remarks>
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.ReceiveBufferSize">
+            <summary>
+            Gets or sets a value that specifies the size of the system receive buffer.
+            </summary>
+            <value>An integer with a default value of 32786.</value>
+            <remarks>
+                <para>
+                Increasing the buffer size may help performance when transferring large amounts of data,
+                or when high bandwidth, high latency connections (such as a satellite broadband provider) are used.
+                </para>
+                <para>
+                The value cannot be changed on CF devices.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.ReceiveTimeout">
+            <summary>
+            Gets or sets a value that specifies the amount of time after which the underlying Socket.Receive call will time out.
+            </summary>
+            <value>The time-out value in milliseconds. The default value is 0, which indicates an infinite time-out period.</value>
+            <remarks>
+                <para>
+                A value of 0 or -1 indicates an infinite time-out period.
+                </para>
+            </remarks>
+            
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.ReuseAddress">
+            <summary>
+            When set to true, allows multiple socket bindings to the same address.
+            <remarks>Set this value to true to allow multiple sockets to bind to the same local address.</remarks>
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.SendBufferSize">
+            <summary>
+            Gets or sets a value that specifies the size of the system send buffer.
+            </summary>
+            <value>An integer with a default value of 8192.</value>
+            <remarks>
+                <para>
+                Increasing the buffer size may help performance when transferring large amounts of data,
+                or when high bandwidth, high latency connections (such as a satellite broadband provider) are used.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.SocketOption.SendTimeout">
+            <summary>
+            Gets or sets a value that specifies the amount of time after which the underlying Socket Send call will time out.
+            </summary>
+            <value>The time-out value in milliseconds. The default value is 0, which indicates an infinite time-out period.</value>
+            <remarks>
+                <para>
+                Values between 1 and 499 will be changed to 500, as 500 is the minimum positive value. 
+                Values of 0 and -1 indicate an infinite time-out period.
+                </para>
+                <para>
+                This option has no affect on CF devices (the Write method will not time out).
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.UdpSocketOption.AllowBroadcast">
+            <summary>
+            Gets or sets the ability to send broadcast messages on the socket.
+            </summary>
+            <value>Defaults to true.</value>
+        </member>
+        <member name="P:Dart.Sockets.UdpSocketOption.MulticastInterface">
+            <summary>
+            Gets or sets the host interface to use when sending multicast datagrams.
+            </summary>
+            <remarks>
+            <p>This property is useful if the host has multiple interfaces and you wish to explicitly 
+            set the interface to use when sending datagrams to multicast addresses.
+            </p>
+            </remarks>
+            <value>
+            The local IPEndPoint that the Udp object is using to send/receive multicasted datagrams.
+            </value>
+        </member>
+        <member name="P:Dart.Sockets.UdpSocketOption.MulticastTimeToLive">
+            <summary>
+            Gets or sets the IP multicast time-to-live used when datagrams are sent to multicast addresses.
+            </summary>
+            <remarks>
+            <p>The MulticastTimeToLive property specifies the number of routers (hops) that multicast 
+            datagrams are permitted to pass through before expiring on the network. For each router (hop), 
+            this property is decremented by 1. When this property reaches 0, each multicast datagram expires 
+            and is no longer forwarded through the network to other subnets. </p>
+            </remarks>
+            <value>
+            An integer value representing the time-to-live value used when datagrams are sent to multicast addresses.
+            </value>
+        </member>
+        <member name="T:Dart.Sockets.Datagram">
+            <summary>
+            Encapsulates a datagram read into a buffer.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Data">
+            <summary>
+            Encapsulates data read or written.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Segment">
+            <summary>
+            Class used to encapsulate a byte[] segment.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Segment.Buffer">
+            <summary>
+            Gets the buffer that holds data.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Segment.Offset">
+            <summary>
+            The offset into the buffer where the data starts.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Segment.Count">
+            <summary>
+            Byte count of data.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Segment.#ctor(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Used to create a Segment object that holds a buffer of data.
+            </summary>
+            <param name="buffer">Byte[] containing data.</param>
+            <param name="offset">Offset into the buffer where the data starts.</param>
+            <param name="count">Byte count of data.</param>
+        </member>
+        <member name="M:Dart.Sockets.Data.#ctor(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Creates a Data object using the system default encoding.
+            </summary>
+            <param name="buffer">The buffer holding byte data values.</param>
+            <param name="offset">The offset bytes where the data starts.</param>
+            <param name="count">The number of bytes with data values.</param>
+        </member>
+        <member name="M:Dart.Sockets.Data.#ctor(System.Byte[],System.Int32,System.Int32,System.Text.Encoding)">
+            <summary>
+            Creates a Data object using the specified encoding.
+            </summary>
+            <param name="buffer">The buffer holding byte data values.</param>
+            <param name="offset">The offset bytes where the data starts.</param>
+            <param name="count">The number of bytes with data values.</param>
+            <param name="encoding">The encoding type to use.</param>
+        </member>
+        <member name="M:Dart.Sockets.Data.ToString">
+            <summary>
+            Gets the data as a decoded string.
+            </summary>
+            <returns>The <see cref="T:System.Buffer"/> decoded into a string using the <see cref="P:Dart.Sockets.Data.Encoding"/> property.</returns>
+        </member>
+        <member name="P:Dart.Sockets.Data.Direction">
+            <summary>
+            Indicates whether data is inbound or outbound.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Data.Encoding">
+            <summary>
+            Gets the character encoding used by the Data object.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Data.Delimiter">
+            <summary>
+            Gets the delimiter string used by the ReadToDelimiter method.
+            </summary>
+            <value>Null if no delimiter was used in the Read call or no delimiter was found.  
+            Otherwise, the delimiter string.</value>
+        </member>
+        <member name="F:Dart.Sockets.Datagram.Origin">
+            <summary>
+            The origin of the datagram sent or received.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ReceiveAsyncCompleted">
+            <summary>
+            Represents the method that will execute on an IO completion thread after a Datagram is asynchronously received. 
+            </summary>
+            <param name="udp">The UdpBase object used to manage the socket.</param>
+            <param name="datagram">The Datagram object containing received data.</param>
+            <param name="state">Any additional information provided by the user.</param>
+        </member>
+        <member name="T:Dart.Sockets.Dns">
+            <summary>
+            Supplements <see cref="T:System.Net.Dns"/> class with the ability to retrieve MX records for any email address or mail server,
+            and also supports socket binding to a specified local IPEndPoint.
+            </summary>
+            <example>
+        The following example demonstrates querying a DNS server for an email address's mail servers.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates querying a DNS server for an email address's mail servers.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    dns1.Start(new DnsThreadStart(doLookup), "myAddress@gmail.com");
+}
+
+private void doLookup(DnsSlave slave, object state)
+{
+    MxHostEntry[] servers = slave.GetMxHostEntries(state.ToString(), dns1.Servers[0]);
+    string results = "The following mail servers were returned:\r\n";
+    for (int i = 0; i < servers.Length; i++)
+        results += servers[i].HostName + " (" + servers[i].Preference.ToString() + ")\r\n";
+    dns1.Marshal(results, null);
+}
+
+private void dns1_UserState(object sender, UserStateEventArgs e)
+{
+    MessageBox.Show(e.Message);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates querying a DNS server for an email address's mail servers.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	dns1.Start(New DnsThreadStart(AddressOf doLookup), "myAddress@gmail.com")
+End Sub
+
+Private Sub doLookup(ByVal slave As DnsSlave, ByVal state As Object)
+	Dim servers() As MxHostEntry = slave.GetMxHostEntries(state.ToString(), dns1.Servers(0))
+	Dim results As String = "The following mail servers were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To servers.Length - 1
+		results &amp;= servers(i).HostName &amp; " (" &amp; servers(i).Preference.ToString() &amp; ")" &amp; Constants.vbCrLf
+	Next i
+	dns1.Marshal(results, Nothing)
+End Sub
+
+Private Sub dns1_UserState(ByVal sender As Object, ByVal e As UserStateEventArgs)
+	MessageBox.Show(e.Message)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="F:Dart.Sockets.Dns.DefaultPort">
+            <summary>
+            The default DNS server port.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Dns.#ctor">
+            <summary>
+            Deafault constuctor for Dns class.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Dns.Start(Dart.Sockets.DnsThreadStart,System.Object)">
+            <summary>
+            Starts a worker thread on which the specified delegate function executes.  
+            </summary>
+            <param name="worker"><see cref="T:Dart.Sockets.DnsThreadStart"/> delegate specifying the function to execute.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides an easy means for executing multiple DNS resolutions in parallel. The
+                default IPv4 socket interface is used.
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the 
+                <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>The following example demonstrates simple Tcp read and write operations on a worker thread.
+				<code lang="C#">
+//The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    tcp1.Start(tcp1_Connect, null);
+}
+
+private void tcp1_Connect(object state)
+{
+    tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)));
+    tcp1.Write("hello world!");
+    byte[] buffer = new byte[1024];
+    tcp1.Marshal(tcp1.Read(buffer), "", null);
+    tcp1.Close();
+}
+
+void tcp1_Data(object sender, Dart.Sockets.DataEventArgs e)
+{
+    MessageBox.Show(e.Data.ToString());
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	tcp1.Start(AddressOf tcp1_Connect, Nothing)
+End Sub
+
+Private Sub tcp1_Connect(ByVal state As Object)
+	tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)))
+	tcp1.Write("hello world!")
+	Dim buffer() As Byte = New Byte(1023){}
+	tcp1.Marshal(tcp1.Read(buffer), "", Nothing)
+	tcp1.Close()
+End Sub
+
+Private Sub tcp1_Data(ByVal sender As Object, ByVal e As Dart.Sockets.DataEventArgs)
+	MessageBox.Show(e.Data.ToString())
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="M:Dart.Sockets.Dns.Start(Dart.Sockets.DnsThreadStart,Dart.Sockets.IPEndPoint,System.Object)">
+            <summary>
+            Starts a worker thread on which the specified delegate function executes.  
+            </summary>
+            <param name="worker"><see cref="T:Dart.Sockets.DnsThreadStart"/> delegate specifying the function to execute.</param>
+            <param name="localEndPoint">Specifies the local IPEndPoint to bind to.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides an easy means for executing multiple DNS resolutions in parallel. 
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the 
+                <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>The following example demonstrates simple Tcp read and write operations on a worker thread.
+				<code lang="C#">
+//The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    tcp1.Start(tcp1_Connect, null);
+}
+
+private void tcp1_Connect(object state)
+{
+    tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)));
+    tcp1.Write("hello world!");
+    byte[] buffer = new byte[1024];
+    tcp1.Marshal(tcp1.Read(buffer), "", null);
+    tcp1.Close();
+}
+
+void tcp1_Data(object sender, Dart.Sockets.DataEventArgs e)
+{
+    MessageBox.Show(e.Data.ToString());
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	tcp1.Start(AddressOf tcp1_Connect, Nothing)
+End Sub
+
+Private Sub tcp1_Connect(ByVal state As Object)
+	tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)))
+	tcp1.Write("hello world!")
+	Dim buffer() As Byte = New Byte(1023){}
+	tcp1.Marshal(tcp1.Read(buffer), "", Nothing)
+	tcp1.Close()
+End Sub
+
+Private Sub tcp1_Data(ByVal sender As Object, ByVal e As Dart.Sockets.DataEventArgs)
+	MessageBox.Show(e.Data.ToString())
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="M:Dart.Sockets.Dns.VirtualWorkerDelegate(Dart.Sockets.ComponentBase.WorkerWrapperParams)">
+            <summary>
+            Invokes the worker thread delegate.  Must be done here as DynamicInvoke does not exist on CF.
+            </summary>
+            <param name="p"></param>
+        </member>
+        <member name="P:Dart.Sockets.Dns.Servers">
+            <summary>
+            Provides a list of DNS servers known to the local system.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.DnsSlave">
+            <summary>
+            Used to perform DNS resolutions.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.DnsSlave.Socket">
+            <summary>
+            Gets the socket used for communications.
+            </summary>
+            <value>The <see cref="T:System.Net.Sockets.Socket">Socket</see> used for UDP communications.</value>
+        </member>
+        <member name="M:Dart.Sockets.DnsSlave.#ctor(Dart.Sockets.Dns,Dart.Sockets.IPEndPoint)">
+            <summary>
+            Creates an object that manages DNS resolution requests.
+            </summary>
+            <param name="parent">Parent Dns component.</param>
+            <param name="localEndPoint">A IPEndPoint that establishes from which IP interface requests will originate.</param>
+            <remarks>The IPAddress.AddressFamily of the local EndPoint MUST match the AddressFamily of destination hosts.</remarks>
+        </member>
+        <member name="M:Dart.Sockets.DnsSlave.GetMxHostEntries(System.String)">
+            <summary>
+            Resolves an emailAddress or mail server domain using the default DNS server.
+            </summary>
+            <param name="emailAddress">Email address (or domain server name).</param>
+            <remarks>Any email address must be in the standard user@hostname form.</remarks>
+            <returns>An array of <see cref="T:Dart.Sockets.MxHostEntry"/> objects associated with the email address.</returns>
+            <example>
+        The following example demonstrates querying a DNS server for an email address's mail servers.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates querying a DNS server for an email address's mail servers.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    dns1.Start(new DnsThreadStart(doLookup), "myAddress@gmail.com");
+}
+
+private void doLookup(DnsSlave slave, object state)
+{
+    MxHostEntry[] servers = slave.GetMxHostEntries(state.ToString(), dns1.Servers[0]);
+    string results = "The following mail servers were returned:\r\n";
+    for (int i = 0; i < servers.Length; i++)
+        results += servers[i].HostName + " (" + servers[i].Preference.ToString() + ")\r\n";
+    dns1.Marshal(results, null);
+}
+
+private void dns1_UserState(object sender, UserStateEventArgs e)
+{
+    MessageBox.Show(e.Message);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates querying a DNS server for an email address's mail servers.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	dns1.Start(New DnsThreadStart(AddressOf doLookup), "myAddress@gmail.com")
+End Sub
+
+Private Sub doLookup(ByVal slave As DnsSlave, ByVal state As Object)
+	Dim servers() As MxHostEntry = slave.GetMxHostEntries(state.ToString(), dns1.Servers(0))
+	Dim results As String = "The following mail servers were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To servers.Length - 1
+		results &amp;= servers(i).HostName &amp; " (" &amp; servers(i).Preference.ToString() &amp; ")" &amp; Constants.vbCrLf
+	Next i
+	dns1.Marshal(results, Nothing)
+End Sub
+
+Private Sub dns1_UserState(ByVal sender As Object, ByVal e As UserStateEventArgs)
+	MessageBox.Show(e.Message)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.DnsSlave.GetMxHostEntries(System.String,Dart.Sockets.IPEndPoint)">
+            <summary>
+            Resolves an emailAddress or mail server using the specified DNS server.
+            </summary>
+            <param name="emailAddress">Email address (or domain server name).</param>
+            <param name="remoteEndPoint"><see>IPEndPoint</see> that specifies the DNS server.</param>
+            <remarks>
+            <para>Any email address must be in the standard user@hostname form.</para>
+            </remarks>
+            <returns>An array of <see cref="T:Dart.Sockets.MxHostEntry"/> objects associated with the email address.</returns>
+        </member>
+        <member name="M:Dart.Sockets.DnsSlave.GetHostEntry(System.String)">
+            <summary>
+            Resolves a hostname (forward lookup) or IP address (reverse lookup) using the default DNS server.
+            </summary>
+            <param name="hostNameOrAddress">Hostname or IP address (IPAddress.ToString() can be used).</param>
+            <returns>A <see cref="T:System.Net.IPHostEntry"/>.</returns>
+        </member>
+        <member name="M:Dart.Sockets.DnsSlave.GetHostEntry(System.String,Dart.Sockets.IPEndPoint)">
+            <summary>
+            Resolves a hostname (forward lookup) or IP address (reverse lookup) using the specified DNS server and socket.
+            </summary>
+            <param name="hostNameOrAddress">Hostname or IP address (IPAddress.ToString() can be used).</param>
+            <param name="remoteEndPoint"><see>IPEndPoint</see> that specifies the DNS server.</param>
+            <returns>A <see cref="T:System.Net.IPHostEntry"/>.</returns>
+        </member>
+        <member name="T:Dart.Sockets.DnsSlave.ResourceRecord">
+            <summary>
+            Parse a resource record and make it available through properties
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.MxHostEntry">
+            <summary>
+            Provides the HostName and Preference provided by an MX record lookup.
+            </summary>
+            <example>
+        The following example demonstrates querying a DNS server for an email address's mail servers.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates querying a DNS server for an email address's mail servers.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    dns1.Start(new DnsThreadStart(doLookup), "myAddress@gmail.com");
+}
+
+private void doLookup(DnsSlave slave, object state)
+{
+    MxHostEntry[] servers = slave.GetMxHostEntries(state.ToString(), dns1.Servers[0]);
+    string results = "The following mail servers were returned:\r\n";
+    for (int i = 0; i < servers.Length; i++)
+        results += servers[i].HostName + " (" + servers[i].Preference.ToString() + ")\r\n";
+    dns1.Marshal(results, null);
+}
+
+private void dns1_UserState(object sender, UserStateEventArgs e)
+{
+    MessageBox.Show(e.Message);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates querying a DNS server for an email address's mail servers.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	dns1.Start(New DnsThreadStart(AddressOf doLookup), "myAddress@gmail.com")
+End Sub
+
+Private Sub doLookup(ByVal slave As DnsSlave, ByVal state As Object)
+	Dim servers() As MxHostEntry = slave.GetMxHostEntries(state.ToString(), dns1.Servers(0))
+	Dim results As String = "The following mail servers were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To servers.Length - 1
+		results &amp;= servers(i).HostName &amp; " (" &amp; servers(i).Preference.ToString() &amp; ")" &amp; Constants.vbCrLf
+	Next i
+	dns1.Marshal(results, Nothing)
+End Sub
+
+Private Sub dns1_UserState(ByVal sender As Object, ByVal e As UserStateEventArgs)
+	MessageBox.Show(e.Message)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.MxHostEntry.#ctor(System.String,System.Int32)">
+            <summary>
+            Default constructor for MxHostEntry.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.MxHostEntry.Preference">
+            <summary>
+            Gets the preference value of the entry.
+            </summary>
+            <remarks>
+            Lower numbers are preferred.
+            </remarks>
+        </member>
+        <member name="F:Dart.Sockets.MxHostEntry.HostName">
+            <summary>
+            Gets the hostname of the resolved mail server.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.DnsThreadStart">
+            <summary>
+            Represents the method that will execute on a worker thread when <see cref="M:Dart.Sockets.Dns.Start(Dart.Sockets.DnsThreadStart,Dart.Sockets.IPEndPoint,System.Object)">Start</see> is used. 
+            </summary>
+            <param name="slave">The DnsSlave object that is independent of all other worker threads.</param>
+            <param name="state">Any additional information provided by the user.</param>
+        </member>
+        <member name="T:Dart.Sockets.ProtocolException">
+            <summary>
+            Used to throw protocol exceptions for upper-layer protocols like FTP, SMTP and POP3.
+            </summary>
+            <remarks><p>This exception is thrown when a server response is negative. For example, 
+            if the server returned "500" (indicating a syntax error) as response to a command being 
+            sent, a ProtocolException would be thrown.</p></remarks>
+        </member>
+        <member name="M:Dart.Sockets.ProtocolException.#ctor">
+            <summary>
+            Initializes a new ProtocolException.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ProtocolException.#ctor(System.String)">
+            <summary>
+            Initializes a new ProtocolException.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ProtocolException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new ProtocolException.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ProtocolException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new ProtocolException.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Security">
+            <summary>
+            Base Security class to be passed to authenticate methods.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Security.ValidationCallback">
+            <summary>
+            The delegate that executes after the server provides its certificate to the client.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Security.CheckCertificateRevocation">
+            <summary>
+            Indicates whether the certificate revocation list is checked during authentication.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Security.Protocols">
+            <summary>
+            Gets or sets the SSLProtocols available for authentication.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ClientSecurity">
+            <summary>
+            Class to be passed to AuthenticateAsClient().
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ClientSecurity.SelectionCallback">
+            <summary>
+            The delegate that executes when the server requests a certificate.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ClientSecurity.Certificates">
+            <summary>
+            Gets or sets a collection of client certificates to use during authentication.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ClientSecurity.TargetHost">
+            <summary>
+            Gets or sets the remote host to be authenticated.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ServerSecurity">
+            <summary>
+            Class to be passed to AuthenticateAsServer().
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ServerSecurity.RequireClientCertificate">
+            <summary>
+            Indicates whether the server requires a client certificate.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ServerSecurity.Certificate">
+            <summary>
+            Gets or sets the server certificate to provide the client.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.DataDirection">
+            <summary>
+            Enumerates the directions data travels.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.DataDirection.In">
+            <summary>
+            Data was received (using the Read method).
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.DataDirection.Out">
+            <summary>
+            Data was sent (using the Write method).
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ConnectionState">
+            <summary>
+            Defines the possible states of the connection.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ConnectionState.Closed">
+            <summary>
+            The connection is closed.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ConnectionState.Connected">
+            <summary>
+            The TCP connection is established but not secure.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ConnectionState.ConnectedAndSecure">
+            <summary>
+            The connection is connected and secure.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.DataEventArgs">
+            <summary>
+            Provides data for the Data event.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.UserStateEventArgs">
+            <summary>
+            Base class for EventArgs that have a UserState property.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.UserStateEventArgs.#ctor(System.String,System.Object)">
+            <summary>
+            Initializes a new UserStateEventArgs.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.UserStateEventArgs.Message">
+            <summary>
+            Gets the user message provided by the <see cref="P:Dart.Sockets.UserStateEventArgs.Message">Message</see>
+            event.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.UserStateEventArgs.UserState">
+            <summary>
+            Gets the user state provided by the <see cref="P:Dart.Sockets.UserStateEventArgs.UserState">UserState</see>
+            event.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.DataEventArgs.#ctor(Dart.Sockets.Data,System.String,System.Object)">
+            <summary>
+            Initialize a new DataEventArgs.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.DataEventArgs.ToString">
+            <summary>
+            Gets the Data property as a decoded string.
+            </summary>
+            <returns>The Data.Buffer decoded into a string using the Data.Encoding specified.</returns>
+        </member>
+        <member name="P:Dart.Sockets.DataEventArgs.Data">
+            <summary>
+            Gets data provided by Data and Log events.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.DartLicenseException">
+             <summary>
+             The base class for all Dart component license exceptions.
+             </summary>
+             <remarks>
+             <para>
+             Use the DartLicenseException class to catch runtime licensing exceptions.
+             These exceptions are thrown at component creation time and during access of select properites or methods.
+             The Message property will provide a description of the specific licensing problem encountered.
+             The InnerException property should also be examined for additional details.
+             </para> 
+            </remarks>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.CheckDesigntimeLicense(System.Object)">
+            <summary>
+            Triggered by lc.exe, use within a development environment, and use via COM interface.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.SaveLicenseKey">
+            <summary>
+            Simply use existing Microsoft License infrastructure (this is called by LC.EXE)
+            </summary>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetAppDomainLicense(System.Object,System.String@)">
+            <summary>
+            Search that CurrentDomain for a license.
+            </summary>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.NagTick(System.Object,System.EventArgs)">
+            <summary>
+            In the COM environment, a timer will generate a periodic nag message if:
+            	1. No license is present.
+            	2. License does not match the signature of the application being run.
+            </summary>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetRuntimeLicense(System.Object)">
+            <summary>
+            Used for COM interop.
+            </summary>
+            <param name="obj"></param>
+            <returns>Returns true if a runtime license is present (can be a trial license)</returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.SaveRuntimeLicense(System.String)">
+            <summary>
+            This method is invoked by license.exe, so don't change the signature!
+            </summary>
+            <param name="appPath"></param>
+            <returns>Path to created file.</returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.RuntimeLicensePath">
+            <summary>
+            Return the path of the runtime license for reading.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.RuntimeLicensePath(System.String)">
+            <summary>
+            Construct the path of the runtime license for writing.
+            </summary>
+            <param name="appPath"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetLicense(System.Object,System.String,System.IO.Stream)">
+            <summary>
+            Get license out of any stream.
+            </summary>
+            <param name="obj"></param>
+            <param name="appname"></param>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.FindLicenseKey(System.Object,Dart.Common.LicenseManager.Environment,System.Boolean@,System.String@)">
+            <summary>
+            Returns null if no license can be found.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.Message(System.String,Dart.Common.LicenseManager.Environment,System.Diagnostics.EventLogEntryType)">
+            <summary>
+            Message is used to inform user of some aspect of trial operation
+            </summary>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetLicenseKey">
+            <summary>
+            Get the runtime LicenseKey that will be saved as a license resource.
+            Called from devenv.exe for licensing WebSite
+            Called from devenv.exe when environment is creating an instance within it's development environment
+            Called from lc.exe for licensing non-WebSite (standard MsBuild)
+            Called whenever else a development environment creates an instance of us with UsageMode == Designtime.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.Verify(System.String,System.Object,Dart.Common.LicenseManager.Environment,System.Boolean,System.String)">
+            <summary>
+            Handle any user notification concerning licensing. Valid license passes with no notification.
+            </summary>
+            <param name="licenseKey">Key found in resource.</param>
+            <param name="obj"></param>
+            <param name="environment"></param>
+            <param name="plugin">True if a plugin scenarion.</param>
+            <param name="licensedAssemblyName">Filename of assembly where license was found.</param>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetResourceLicenseStream(System.IO.FileInfo)">
+            <summary>
+            Use this method when we know the top-level process (app) is the managed app with the license resource in it.
+            True for all device apps.
+            </summary>
+            <param name="app"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Dart.Common.LicenseManager.GetSystemNumber">
+            <summary>
+            Return a unique local system number that can be used for license validation at design-time.
+            Ensures that at least one system identifier is used in construction of this fingerprint.
+            If only defaults can be used, an exception is thrown.  In practice this should never happen.
+            </summary>
+            <returns>The system number, aka machine fingerprint.</returns>
+        </member>
+        <member name="M:Dart.Common.LicenseAccessProvider.GetContractVersion">
+            <summary>
+            Returns the version of this interface contract.
+            A change in this number means the interfaces are no longer compatible.
+            This allows older versions of tools to fail gracefully and avoid attempting to use assemblies that aren't compatible.
+            As such, this is typically the very first method invoked, and the version must match the major version number of the tool.
+            </summary>
+            <returns>The contract version number</returns>
+        </member>
+        <member name="M:Dart.Common.LicenseAccessProvider.GetDeveloperLicense">
+            <summary>
+            Returns the fully qualified path to a developer license if this assembly is activated.
+            </summary>
+            <returns>The fully qualified license if activated, or null if not.</returns>
+        </member>
+        <member name="M:Dart.Common.LicenseAccessProvider.GenerateActivationCode(System.String)">
+            <summary>
+            Generates an activation code after validating the specified product license.
+            </summary>
+            <param name="productLicense">The license to validate</param>
+            <returns>The non-zero system number, or zero if the specified license is invalid.</returns>
+        </member>
+        <member name="T:Dart.Sockets.PtyBase">
+            <summary>
+            This class provides support for interactive on-line terminal access using controls derived from TextBoxBase.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.TcpBase">
+            <summary>
+            Base class for components utilizing protocols built upon the TCP protocol.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Marshal(Dart.Sockets.Data,System.String,System.Object)">
+            <summary>
+            Marshals data to the UI thread. 
+            </summary>
+            <param name="data"><see cref="E:Dart.Sockets.TcpBase.Data"/> to be marshaled.</param>
+            <param name="message">Text message to be marshaled.</param>
+            <param name="state">State information to be marshaled.</param>
+            <remarks>
+                <para>
+                This method is used to marshal data from a worker thread to the UI thread for typical display purposes. 
+                It calls the <see cref="M:Dart.Sockets.TcpBase.OnData(Dart.Sockets.DataEventArgs)"/> method, which raises the <see cref="E:Dart.Sockets.TcpBase.Data"/> event.
+                </para>
+                <para>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+                </para>
+            </remarks>
+            <example>This example demonstrates execution of a looping Read on a worker thread, and marshaling the data to the UI.
+      <code lang="CS">
+    private void button1_Click(object sender, EventArgs e)
+    {
+        //Receive data on a separate thread
+        myComponent.Start(receiveData, null);
+    }
+
+    private void receiveData(object notUsed)
+    {
+        //Receive data when it is sent by the remote host
+        byte[] buffer = new byte[1024];
+        while (myComponent.State != ConnectionState.Closed)
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", null);
+    }
+
+    private void myComponent_Data(object sender, DataEventArgs e)
+    {
+        //Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString());
+    }
+      </code>
+      <code lang="VB">
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        'Receive data on a separate thread
+        myComponent.Start(AddressOf receiveData, Nothing)
+    End Sub
+
+    Private Sub receiveData(ByVal notUsed As Object)
+        'Receive data when it is sent by the remote host
+        Dim buffer() As Byte = New Byte(1023) {}
+        Do While myComponent.State &lt;&gt; ConnectionState.Closed
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", Nothing)
+        Loop
+    End Sub
+
+    Private Sub myComponent_Data(ByVal sender As Object, ByVal e As DataEventArgs) Handles myComponent.Data
+        'Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString())
+    End Sub
+		</code>
+    </example>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.OnData(Dart.Sockets.DataEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.TcpBase.Data"/> event.
+            </summary>
+            <param name="e">A <see cref="T:Dart.Sockets.DataEventArgs">DataEventArgs</see> object that contains the event data.</param>
+            <remarks>
+            If the Synchronizing property is set, this method asynchronously invokes the <see cref="E:Dart.Sockets.TcpBase.Data"/> event on the UI thread.
+            If the Synchronizing property is null, this method invokes the event on the executing thread.
+            <para>
+            The OnData method allows derived classes to handle the event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnData in a derived class, 
+            be sure to call the base class OnData method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.OnStateChanged(System.EventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.TcpBase.StateChanged"/> event.
+            </summary>
+            <param name="e">An <see cref="T:System.EventArgs">EventArgs</see>.</param>
+            <remarks>
+            If the Synchronizing property is set, this method synchronously invokes the event on the UI thread.
+            If the Synchronizing property is null, this method invokes the event on the executing thread.
+            <para>
+            The OnStateChanged method allows derived classes to handle the event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnStateChanged in a derived class, 
+            be sure to call the base class OnStateChanged method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.OnLog(Dart.Sockets.DataEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.TcpBase.Log"/> event.
+            </summary>
+            <param name="e">A <see cref="T:Dart.Sockets.DataEventArgs"/> object containing data to log.</param>
+            <remarks>
+            If the Synchronizing property is set, this method asynchronously invokes the event on the UI thread.
+            If the Synchronizing property is null, this method invokes the event on the executing thread.
+            <para>
+            The OnLog method allows derived classes to handle the event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnLog in a derived class, 
+            be sure to call the base class OnLog method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.AuthenticateAsClient(Dart.Sockets.ClientSecurity)">
+            <summary>
+            Authenticates the server when establishing a secure connection.
+            </summary>
+            <param name="security">Security parameters used during authentication.</param>
+            <remarks>
+                <para>
+                The security.TargetHost must match the server certificate name.
+                If authentication fails, an <see cref="T:System.Security.Authentication.AuthenticationException">AuthenticationException</see> will occur.
+                </para>
+                <para>
+                To accept or reject a certificate "on-the-fly" implement a 
+                <see cref="F:Dart.Sockets.Security.ValidationCallback">Security.ValidationCallback</see> function.
+                </para>
+                <para>
+                To select a client certificate "on-the-fly" implement a 
+                <see cref="F:Dart.Sockets.ClientSecurity.SelectionCallback">ClientSecurity.SelectionCallback</see> function.
+                </para>
+            </remarks>
+            <example>This example demonstrates the AuthenticateAsClient call and the callback that executes when a certificate is received.
+      <code lang="CS">
+        <![CDATA[
+  //using System.Net.Security;
+  //using System.Security.Authentication;
+  //using System.Security.Cryptography.X509Certificates;
+  
+	private void doAuthentication(string server, SslProtocols protocol, bool checkRevocation)
+	{
+		//Authenticate server and specify certificate callback functions
+		ClientSecurity security = new ClientSecurity();
+    security.TargetHost = server;
+    security.Protocols = protocol;
+    security.CheckCertificateRevocation = checkRevocation;
+    security.ValidationCallback = certificateReceived;
+    myComponent.AuthenticateAsClient(security);
+	}
+
+	private static bool certificateReceived(object sender, X509Certificate certificate,
+		X509Chain chain, SslPolicyErrors sslPolicyErrors)
+	{
+		//Return true if the server certificate is ok
+		if (sslPolicyErrors == SslPolicyErrors.None)
+			return true;
+
+		bool acceptCertificate = true;
+		string msg = "The server could not be validated for the following reason(s):\r\n";
+
+		//The server did not present a certificate
+		if ((sslPolicyErrors &
+			SslPolicyErrors.RemoteCertificateNotAvailable) == SslPolicyErrors.RemoteCertificateNotAvailable)
+		{
+			msg = msg + "\r\n    -The server did not present a certificate.\r\n";
+			acceptCertificate = false;
+		}
+		else
+		{
+			//The certificate does not match the server name
+			if ((sslPolicyErrors &
+				SslPolicyErrors.RemoteCertificateNameMismatch) == SslPolicyErrors.RemoteCertificateNameMismatch)
+			{
+				msg = msg + "\r\n    -The certificate name does not match the authenticated name.\r\n";
+				acceptCertificate = false;
+			}
+			
+			//There is some other problem with the certificate
+			if ((sslPolicyErrors &
+				SslPolicyErrors.RemoteCertificateChainErrors) == SslPolicyErrors.RemoteCertificateChainErrors)
+			{
+				foreach (X509ChainStatus item in chain.ChainStatus)
+				{
+					if (item.Status != X509ChainStatusFlags.RevocationStatusUnknown &&
+						item.Status != X509ChainStatusFlags.OfflineRevocation)
+						break;
+
+					if (item.Status != X509ChainStatusFlags.NoError)
+					{
+						msg = msg + "\r\n    -" + item.StatusInformation;
+						acceptCertificate = false;
+					}
+				}
+			}
+		}
+
+		//If Validation failed, present message box
+		if (acceptCertificate == false)
+		{
+			msg = msg + "\r\nDo you wish to override the security check?";
+			if (MessageBox.Show(msg, "Security Alert: Server could not be validated",
+				MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+				acceptCertificate = true;
+		}
+
+		return acceptCertificate;
+	}
+      ]]></code>
+      <code lang="VB">
+  'Imports System.Net.Security
+  'Imports System.Security.Authentication
+  'Imports System.Security.Cryptography.X509Certificates
+  
+	Private Sub doAuthentication(ByVal server As String, ByVal protocol As SslProtocols, _
+		ByVal checkRevocation As Boolean)
+        ClientSecurity security = new ClientSecurity()
+        security.TargetHost = server
+        security.Protocols = protocol
+        security.CheckCertificateRevocation = checkRevocation
+        security.ValidationCallback = AddressOf certificateReceived
+        myComponent.AuthenticateAsClient(security)
+	End Sub
+
+	Private Shared Function certificateReceived(ByVal sender As Object, ByVal certificate As X509Certificate, _
+		ByVal chain As X509Chain, ByVal sslPolicyErrors As SslPolicyErrors) As Boolean
+		'Return true if the server certificate is ok
+		If sslPolicyErrors = SslPolicyErrors.None Then
+			Return True
+		End If
+
+		Dim acceptCertificate As Boolean = True
+		Dim msg As String = "The server could not be validated for the following reason(s):" &amp; Constants.vbCrLf
+
+		'The server did not present a certificate
+		If (sslPolicyErrors And _
+			SslPolicyErrors.RemoteCertificateNotAvailable) = SslPolicyErrors.RemoteCertificateNotAvailable Then
+			msg = msg &amp; Constants.vbCrLf &amp; "    -The server did not present a certificate." &amp; Constants.vbCrLf
+			acceptCertificate = False
+		Else
+			'The certificate does not match the server name
+			If ((sslPolicyErrors And _
+				SslPolicyErrors.RemoteCertificateNameMismatch) = SslPolicyErrors.RemoteCertificateNameMismatch) Then
+				msg = msg &amp; Constants.vbCrLf &amp; _ 
+					"    -The certificate name does not match the authenticated name." &amp; Constants.vbCrLf
+					acceptCertificate = False
+			End If
+			
+			'There is some other problem with the certificate
+			If (sslPolicyErrors And _
+				SslPolicyErrors.RemoteCertificateChainErrors) = SslPolicyErrors.RemoteCertificateChainErrors Then
+				For Each item As X509ChainStatus In chain.ChainStatus
+					If item.Status &lt;&gt; X509ChainStatusFlags.RevocationStatusUnknown AndAlso _
+						item.Status &lt;&gt; X509ChainStatusFlags.OfflineRevocation Then
+						Exit For
+					End If
+
+					If (item.Status &lt;&gt; X509ChainStatusFlags.NoError) Then
+						msg = msg &amp; Constants.vbCrLf &amp; "    -" &amp; item.StatusInformation
+						acceptCertificate = False
+					End If
+				Next item
+			End If
+		End If
+
+		'If Validation failed, present message box
+		If acceptCertificate = False Then
+			msg = msg &amp; Constants.vbCrLf &amp; "Do you wish to override the security check?"
+			If MessageBox.Show(msg, "Security Alert: Server could not be validated", _
+				MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) = System.Windows.Forms.DialogResult.Yes Then
+			   acceptCertificate = True
+			End If
+		End If
+
+		Return acceptCertificate
+	End Function
+      </code>
+    </example>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.AuthenticateAsServer(Dart.Sockets.ServerSecurity)">
+            <summary>
+            Authenticates a client when establishing a secure connection.
+            </summary>
+            <param name="security">Security parameters used during authentication.</param>
+            <remarks>
+                <para>
+                To accept or reject a certificate "on-the-fly" implement a 
+                <see cref="F:Dart.Sockets.Security.ValidationCallback">Security.ValidationCallback</see> function.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ShutdownSsl">
+            <summary>
+            Signals the remote host to shutdown the SSL connection.
+            </summary>
+            <remarks>
+                <para>
+                This method provides a means for switching a secure connection to a non-secure connection.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Connect(Dart.Sockets.TcpSession)">
+            <summary>
+            Connects to a server using parameters found in the session parameter.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.PostConnect">
+            <summary>
+            Called after connection and any proxy negotiation completes
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Close">
+            <summary>
+            Gracefully closes the connection.
+            </summary>
+            <remarks>
+                <para>
+                This method enters a normal TIME_WAIT state after the connection is closed.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Abort">
+            <summary>
+            Performs a hard close of the connection.
+            </summary>
+            <remarks>
+                <para>
+                This method resets the connection and immediately clears the socket state.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.GetStream">
+            <summary>
+            Provides access to the underlying Stream.
+            </summary>
+            <returns>The underlying <see cref="T:System.IO.Stream">Stream</see> object used by the component.</returns>
+            <remarks>Derived classes can override this method to provide a stream that implements an upper-layer protocol.</remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Receives data from the remote host.
+            </summary>
+            <param name="buffer">The byte array used to store the received data.</param>
+            <param name="offset">The position in the buffer to store the data.</param>
+            <param name="count">The maximum number of bytes to receive.</param>
+            <returns><see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object encapsulating the received data (null if the connection is closed).</returns>
+            <remarks>
+                <para>
+                This method will perform a single socket read, asking for "count" bytes. The socket will block
+                until at least one byte is read, the remote host closes the connection, or an exception is thrown.
+                A SocketException indicating SocketError.Timeout will not result in the socket being closed;
+                other SocketExceptions are fatal and the socket is automatically closed by the class.
+                </para>
+                <para>
+                The <see cref="P:Dart.Sockets.TcpSocketOption.ReceiveTimeout">ReceiveTimeout</see> property controls how
+                long this method will block before throwing a SocketError.Timeout exception.
+                </para>
+            </remarks>
+            <example>This example demonstrates execution of a looping Read on a worker thread, and marshaling the data to the UI.
+      <code lang="CS">
+    private void button1_Click(object sender, EventArgs e)
+    {
+        //Receive data on a separate thread
+        myComponent.Start(receiveData, null);
+    }
+
+    private void receiveData(object notUsed)
+    {
+        //Receive data when it is sent by the remote host
+        byte[] buffer = new byte[1024];
+        while (myComponent.State != ConnectionState.Closed)
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", null);
+    }
+
+    private void myComponent_Data(object sender, DataEventArgs e)
+    {
+        //Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString());
+    }
+      </code>
+      <code lang="VB">
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        'Receive data on a separate thread
+        myComponent.Start(AddressOf receiveData, Nothing)
+    End Sub
+
+    Private Sub receiveData(ByVal notUsed As Object)
+        'Receive data when it is sent by the remote host
+        Dim buffer() As Byte = New Byte(1023) {}
+        Do While myComponent.State &lt;&gt; ConnectionState.Closed
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", Nothing)
+        Loop
+    End Sub
+
+    Private Sub myComponent_Data(ByVal sender As Object, ByVal e As DataEventArgs) Handles myComponent.Data
+        'Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString())
+    End Sub
+		</code>
+    </example>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Read(System.Byte[])">
+            <summary>
+            Receives data from the remote host.
+            </summary>
+            <param name="buffer">The byte array used to store the received data.</param>
+            <returns>A <see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object encapsulating the received data.
+            Returns null if the socket is closed.</returns>
+            <remarks>
+                <para>
+                This method will read as much data as is available, 
+                up to the size of the buffer. 
+                </para>
+                <para>
+                This method will block until data is available or   
+                the <see cref="P:Dart.Sockets.TcpSocketOption.ReceiveTimeout">ReceiveTimeout</see> property has expired.
+                </para>
+            </remarks>
+            <example>This example demonstrates execution of a looping Read on a worker thread, and marshaling the data to the UI.
+      <code lang="CS">
+    private void button1_Click(object sender, EventArgs e)
+    {
+        //Receive data on a separate thread
+        myComponent.Start(receiveData, null);
+    }
+
+    private void receiveData(object notUsed)
+    {
+        //Receive data when it is sent by the remote host
+        byte[] buffer = new byte[1024];
+        while (myComponent.State != ConnectionState.Closed)
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", null);
+    }
+
+    private void myComponent_Data(object sender, DataEventArgs e)
+    {
+        //Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString());
+    }
+      </code>
+      <code lang="VB">
+    Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
+        'Receive data on a separate thread
+        myComponent.Start(AddressOf receiveData, Nothing)
+    End Sub
+
+    Private Sub receiveData(ByVal notUsed As Object)
+        'Receive data when it is sent by the remote host
+        Dim buffer() As Byte = New Byte(1023) {}
+        Do While myComponent.State &lt;&gt; ConnectionState.Closed
+            myComponent.Marshal(myComponent.Read(buffer, 0, 1024), "", Nothing)
+        Loop
+    End Sub
+
+    Private Sub myComponent_Data(ByVal sender As Object, ByVal e As DataEventArgs) Handles myComponent.Data
+        'Whenever data is received, display it
+        textDisplay.AppendText(e.Data.ToString())
+    End Sub
+		</code>
+    </example>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ReadToDelimiter(System.String)">
+            <summary>
+            Read until the delimiter is found, an exception is thrown, or the connection is closed.
+            </summary>
+            <param name="delimiter">A delimiter to search for.</param>
+            <returns>
+            <see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object encapsulating the received data.
+            </returns>
+            <remarks>
+                <para>
+                This method blocks until the delimiter is found, an exception is thrown, or the server closes the connection.
+                The value of Data.Delimiter is set to the found delimiter, if any.
+                </para>
+                <para>If a DataException is thrown, the  <see cref="F:Dart.Sockets.DataException.DataRead"/> property contains
+                any data received prior to the exception.
+                </para>
+            </remarks>
+            <exception cref="T:Dart.Sockets.DataException">The delimiter was not found. The <see cref="F:Dart.Sockets.DataException.DataRead"/>
+            property contains any data received before the failure occurred.</exception>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ReadToDelimiter(System.String[])">
+            <summary>
+            Read until a delimiter is found, an exception is thrown, or the connection is closed.
+            </summary>
+            <param name="delimiters">An array of delimiters to search for.</param>
+            <returns>
+            <see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object encapsulating the received data.
+            </returns>
+            <remarks>
+                <para>
+                This method blocks until a delimiter is found, an exception is thrown, or the server closes the connection.
+                The value of Data.Delimiter is set to the found delimiter, if any.
+                </para>
+                <para>If a DataException is thrown, the  <see cref="F:Dart.Sockets.DataException.DataRead"/> property contains
+                any data received prior to the exception.
+                </para>
+            </remarks>
+            <exception cref="T:Dart.Sockets.DataException">The delimiter was not found. The <see cref="F:Dart.Sockets.DataException.DataRead"/>
+            property contains any data received before the failure occurred.</exception>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ReadAsync(System.Byte[],System.Int32,System.Int32,Dart.Sockets.ReadAsyncCompleted,System.Object)">
+            <summary>
+            Start an asynchronous read on the socket.
+            </summary>
+            <param name="buffer">The byte array used to store the received data.</param>
+            <param name="offset">The position in the buffer to store the data.</param>
+            <param name="count">The number of bytes to receive.</param>
+            <param name="worker">ReadAsyncCompleted delegate to be raised after data is received.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+            <para>
+            PowerTCP 4.0 is typically used by making blocking calls on a worker (non-UI) thread. This technique greatly simplifies
+            development as it removes the need for saving state information, but requires a dedicated thread for each connection. The 
+            use of blocking calls on the streaming interface (<see cref="M:Dart.Sockets.TcpBase.GetStream">GetStream()</see> has greatly improved the
+            implementation of layered protocols (like SSL and Telnet), that makes each protocol almost transparent to the application
+            developer.
+            </para>
+            <para>
+            If, however, a dedicated worker thread for each socket is not scalable enough, developers can use ReadAsync
+            which uses IO completion threads, and does not dedicate a worker thread to each connection. Instead, IO completion
+            threads raise the delegate provided. This is the best way to create a high-performance server
+            without using dedicated worker threads.
+            </para>
+            <para>
+            Notes: No WriteAsync method is necessary because only the reading process may cause an indeterminate delay. There
+            is also no need for ConnectAsync as this operation can easily be accomplished on a worker thread without affecting performance.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ReadToCount(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read until count bytes are read, an exception is thrown, or the connection is closed.
+            </summary>
+            <param name="buffer">Destination buffer.</param>
+            <param name="offset">The position in the buffer to store the data.</param>
+            <param name="count">The number of byte to read.</param>
+            <returns><see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object indicating count bytes were read.
+            </returns>
+            <remarks>
+                <para>If a DataException is thrown, the  <see cref="F:Dart.Sockets.DataException.DataRead"/> property contains
+                any data received prior to the exception.
+                </para>
+            </remarks>
+            <exception cref="T:Dart.Sockets.DataException">Count bytes could not be read. The <see cref="F:Dart.Sockets.DataException.DataRead"/>
+            property contains any data received before the failure occurred.</exception>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.ReadToEnd">
+            <summary>
+            Read until the connection is closed or an exception is thrown.
+            </summary>
+            <returns>A <see cref="E:Dart.Sockets.TcpBase.Data">Data</see> object encapsulating the received data (null if the socket is closed).
+            </returns>
+            <remarks>
+                <para>If a DataException is thrown, the  <see cref="F:Dart.Sockets.DataException.DataRead"/> property contains
+                any data received prior to the exception.
+                </para>
+            </remarks>
+            <exception cref="T:Dart.Sockets.DataException">A failure occurred before the normal end of stream was found. The <see cref="F:Dart.Sockets.DataException.DataRead"/>
+            property contains any data received before the failure occurred.</exception>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Write(System.Byte[])">
+            <summary>
+            Sends data to the remote host.
+            </summary>
+            <param name="buffer">Byte array of data to send.</param>
+            <remarks>
+                <para>
+                This method synchronously sends data to the remote host over an existing connection.
+                It will block until a buffer is available to accept the data or the  
+                SocketOption.SendTimeout value has expired. 
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Write(System.String)">
+            <summary>
+            Sends data to the remote host.
+            </summary>
+            <param name="data">String of data to send.</param>
+            <remarks>
+                <para>
+                This method synchronously sends data to the remote host over an existing connection.
+                It will block until a buffer is available to accept the data or the  
+                SocketOption.SendTimeout value has expired. 
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.TcpBase.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Sends data to the remote host.
+            </summary>
+            <param name="buffer">Byte array of data to send.</param>
+            <param name="offset">The position in the data buffer at which to begin sending data.</param>
+            <param name="count">The number of bytes to send.</param>
+            <remarks>
+                <para>
+                This method synchronously sends data to the remote host over an existing connection.
+                It will block until a buffer is available to accept the data or the  
+                SocketOption.SendTimeout value has expired. 
+                </para>
+            </remarks>
+        </member>
+        <member name="E:Dart.Sockets.TcpBase.Data">
+            <summary>
+            Raised when <see cref="M:Dart.Sockets.TcpBase.Marshal(Dart.Sockets.Data,System.String,System.Object)"/> is used. 
+            </summary>
+            <remarks>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+        </member>
+        <member name="E:Dart.Sockets.TcpBase.StateChanged">
+            <summary>
+            Raised when the value of the State property changes.
+            </summary>
+            <remarks>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+            <example>This example demonstrates using the component State to update the UI.
+		<code lang="CS">
+    private void myComponent_StateChanged(object sender, EventArgs e)
+    {
+      //Always raised when connection is established or closed (State property changes)
+      switch (myComponent.State)
+      {
+	      case ConnectionState.Connected:
+	      case ConnectionState.ConnectedAndSecure:
+		      //Update interface to indicate connection
+		      textDisplay.ReadOnly = false;
+		      textDisplay.BackColor = Color.WhiteSmoke;
+		      Text = (myComponent.State == ConnectionState.Connected)
+			      ? "[Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" + 
+				      myComponent.RemoteEndPoint.Port.ToString() + "]"
+			      : "[Securely Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" +
+				      myComponent.RemoteEndPoint.Port.ToString() + "]";
+		      break;
+
+	      case ConnectionState.Closed:
+		      //Update interface to indicate no connection
+		      textDisplay.ReadOnly = true;
+		      textDisplay.BackColor = Color.Silver;
+		      this.Text = "[Not Connected]";
+		      break;
+      }
+    }
+		</code>
+		<code>
+	Private Sub myComponent_StateChanged(ByVal sender As Object, ByVal e As EventArgs)
+	  'Always raised when connection is established or closed (State property changes)
+	  Select Case myComponent.State
+		  Case ConnectionState.Connected, ConnectionState.ConnectedAndSecure
+			  'Update interface to indicate connection
+			  textDisplay.ReadOnly = False
+			  textDisplay.BackColor = Color.WhiteSmoke
+			  Text = If((myComponent.State = ConnectionState.Connected), _
+          "[Connected to " &amp; myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]", "[Securely Connected to " &amp; _
+          myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]")
+
+		  Case ConnectionState.Closed
+			  'Update interface to indicate no connection
+			  textDisplay.ReadOnly = True
+			  textDisplay.BackColor = Color.Silver
+			  Me.Text = "[Not Connected]"
+	  End Select
+	End Sub
+		</code>
+	</example>
+        </member>
+        <member name="E:Dart.Sockets.TcpBase.Log">
+            <summary>
+            Raised when data is read or written.
+            </summary>
+            <remarks>
+                The handler must be added before connecting.
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+            <example>This example demonstrates logging sent and received data to a file on disk.
+		<code lang="CS">
+    private FileStream logFile =
+            new FileStream(Application.StartupPath + "\\logFile.txt", FileMode.Append, FileAccess.Write);
+
+    private void myComponent_Log(object sender, DataEventArgs e)
+    {
+        string prompt = (e.Data.Direction == DataDirection.In) ? "Recv: " : "Sent: ";
+        logFile.Write(System.Text.Encoding.Default.GetBytes(prompt), 0, prompt.Length);
+        logFile.Write(e.Data.Buffer, e.Data.Offset, e.Data.Count);
+        logFile.Write(System.Text.Encoding.Default.GetBytes("\r\n"), 0, 2);
+    }
+    </code>
+		<code lang="VB">
+    Private logFile As FileStream = New FileStream(Application.StartupPath &amp; "\logFile.txt", FileMode.Append, FileAccess.Write)
+
+    Private Sub myComponent_Log(ByVal sender As Object, ByVal e As DataEventArgs)
+      Dim prompt As String
+      prompt = If((e.Data.Direction = DataDirection.In), "Recv: ", "Sent: ")
+      logFile.Write(System.Text.Encoding.Default.GetBytes(prompt), 0, prompt.Length)
+      logFile.Write(e.Data.Buffer, e.Data.Offset, e.Data.Count)
+      logFile.Write(System.Text.Encoding.Default.GetBytes(Constants.vbCrLf), 0, 2)
+    End Sub
+    </code>
+	</example>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.State">
+            <summary>
+            Gets the status of the connection.
+            </summary>
+            <example>This example demonstrates using the component State to update the UI.
+		<code lang="CS">
+    private void myComponent_StateChanged(object sender, EventArgs e)
+    {
+      //Always raised when connection is established or closed (State property changes)
+      switch (myComponent.State)
+      {
+	      case ConnectionState.Connected:
+	      case ConnectionState.ConnectedAndSecure:
+		      //Update interface to indicate connection
+		      textDisplay.ReadOnly = false;
+		      textDisplay.BackColor = Color.WhiteSmoke;
+		      Text = (myComponent.State == ConnectionState.Connected)
+			      ? "[Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" + 
+				      myComponent.RemoteEndPoint.Port.ToString() + "]"
+			      : "[Securely Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" +
+				      myComponent.RemoteEndPoint.Port.ToString() + "]";
+		      break;
+
+	      case ConnectionState.Closed:
+		      //Update interface to indicate no connection
+		      textDisplay.ReadOnly = true;
+		      textDisplay.BackColor = Color.Silver;
+		      this.Text = "[Not Connected]";
+		      break;
+      }
+    }
+		</code>
+		<code>
+	Private Sub myComponent_StateChanged(ByVal sender As Object, ByVal e As EventArgs)
+	  'Always raised when connection is established or closed (State property changes)
+	  Select Case myComponent.State
+		  Case ConnectionState.Connected, ConnectionState.ConnectedAndSecure
+			  'Update interface to indicate connection
+			  textDisplay.ReadOnly = False
+			  textDisplay.BackColor = Color.WhiteSmoke
+			  Text = If((myComponent.State = ConnectionState.Connected), _
+          "[Connected to " &amp; myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]", "[Securely Connected to " &amp; _
+          myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]")
+
+		  Case ConnectionState.Closed
+			  'Update interface to indicate no connection
+			  textDisplay.ReadOnly = True
+			  textDisplay.BackColor = Color.Silver
+			  Me.Text = "[Not Connected]"
+	  End Select
+	End Sub
+		</code>
+	</example>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.ConnectTime">
+            <summary>
+            Returns the DateTime the connection was established.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.CloseTime">
+            <summary>
+            Returns the DateTime the connection was closed.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.NetworkStream">
+            <summary>
+            Returns the <see cref="T:System.Net.Sockets.NetworkStream">NetworkStream</see> object created when Connect() is called.
+            </summary>
+            <remarks>Returns null when no TCP connection exists.</remarks>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.RemoteEndPoint">
+            <summary>
+            Gets the remote address and port of the connection.
+            </summary>
+            <value>The <see cref="T:System.Net.IPEndPoint">Socket.RemoteEndPoint</see>. This value persists after the connection is closed.</value>
+            <example>This example demonstrates using the component State to update the UI.
+		<code lang="CS">
+    private void myComponent_StateChanged(object sender, EventArgs e)
+    {
+      //Always raised when connection is established or closed (State property changes)
+      switch (myComponent.State)
+      {
+	      case ConnectionState.Connected:
+	      case ConnectionState.ConnectedAndSecure:
+		      //Update interface to indicate connection
+		      textDisplay.ReadOnly = false;
+		      textDisplay.BackColor = Color.WhiteSmoke;
+		      Text = (myComponent.State == ConnectionState.Connected)
+			      ? "[Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" + 
+				      myComponent.RemoteEndPoint.Port.ToString() + "]"
+			      : "[Securely Connected to " + myComponent.RemoteEndPoint.Address.ToString() + ":" +
+				      myComponent.RemoteEndPoint.Port.ToString() + "]";
+		      break;
+
+	      case ConnectionState.Closed:
+		      //Update interface to indicate no connection
+		      textDisplay.ReadOnly = true;
+		      textDisplay.BackColor = Color.Silver;
+		      this.Text = "[Not Connected]";
+		      break;
+      }
+    }
+		</code>
+		<code>
+	Private Sub myComponent_StateChanged(ByVal sender As Object, ByVal e As EventArgs)
+	  'Always raised when connection is established or closed (State property changes)
+	  Select Case myComponent.State
+		  Case ConnectionState.Connected, ConnectionState.ConnectedAndSecure
+			  'Update interface to indicate connection
+			  textDisplay.ReadOnly = False
+			  textDisplay.BackColor = Color.WhiteSmoke
+			  Text = If((myComponent.State = ConnectionState.Connected), _
+          "[Connected to " &amp; myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]", "[Securely Connected to " &amp; _
+          myComponent.RemoteEndPoint.Address.ToString() &amp; ":" &amp; _
+          myComponent.RemoteEndPoint.Port.ToString() &amp; "]")
+
+		  Case ConnectionState.Closed
+			  'Update interface to indicate no connection
+			  textDisplay.ReadOnly = True
+			  textDisplay.BackColor = Color.Silver
+			  Me.Text = "[Not Connected]"
+	  End Select
+	End Sub
+		</code>
+	</example>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.SocketOption">
+            <summary>
+            Gets and sets the socket options for classes derived from TcpBase.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.TcpBase.SslStream">
+            <summary>
+            Returns the <see cref="T:System.Net.Security.SslStream">SslStream</see> object created when AuthenticateAsClient() or AuthenticateAsServer() are called.
+            </summary>
+            <remarks>Returns null when no secure connection exists.</remarks>
+        </member>
+        <member name="P:Dart.Sockets.PtyBase.Pty">
+            <summary>
+            Gets or sets a display control to use for automatic pseudo terminal support.
+            </summary>
+            <remarks>
+                <para>
+                Set this property to a control derived from <see cref="T:System.Windows.Forms.TextBoxBase">TextBoxBase</see> and call
+                <see cref="M:Dart.Sockets.TcpBase.Connect(Dart.Sockets.TcpSession)">Connect</see> to start an online session.
+                Data received from the host will be displayed, and keyboard input will automatically be sent to
+                the remote host.
+                </para>
+                <para>
+                The Multiline property on the Pty control is set to true. You may wish to set the Font property to a fixed-width font and set the 
+            Wordwrap property to false.
+                Also, if the SynchronizingObject is null, it will be set to the Pty control.
+                </para>
+                <para>
+                These properties can be changed from their default values after this property is set.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.PtyBase.CRLF">
+            <summary>
+            Set to true if the Pty property is used and a CR should be converted to a CRLF for sending.
+            </summary>
+            <remarks>This property controls the behavior of the TextBox assigned to the Pty property.
+            For example, the Echo protocol echoes back any sent character. Since as textbox requires a CRLF, set this property to 
+            true so that a CRLF will be generated when the return key is pressed. Defaults to false.</remarks>
+        </member>
+        <member name="P:Dart.Sockets.PtyBase.LocalEcho">
+            <summary>
+            Set to true if the Pty property is used and keystrokes should be displayed in the textbox.
+            </summary>
+            <remarks>This property controls the behavior of the TextBox assigned to the Pty property.
+            For example, the Pop protocol does not echo sent characters to the screen. Set this property to 
+            true to see the characters being sent to the Pop server. Defaults to false.</remarks>
+        </member>
+        <member name="T:Dart.Sockets.Udp">
+            <summary>
+            The Udp component provides comprehensive User Datagram Protocol support.
+            </summary>
+            <remarks>
+            <p>Use the Udp component to send and receive UDP datagrams.</p>
+            <p>Use the <see cref="M:Dart.Sockets.UdpBase.Open(System.Int32)"/> method to bind to a socket prior to sending and receiving.</p>
+            <p>Use the <see cref="M:Dart.Sockets.UdpBase.Send(System.Byte[],System.Net.IPEndPoint)"/> and 
+            <see cref="M:Dart.Sockets.UdpBase.Receive(System.Byte[])"/> methods to send/receive datagrams.</p>
+            <p>Use <see cref="M:Dart.Sockets.UdpBase.JoinMulticastGroup(System.Net.IPAddress)"/> to join a multicast group, 
+            and <see cref="M:Dart.Sockets.UdpBase.LeaveMulticastGroup(System.Net.IPAddress)"/> to leave a multicast group.</p>
+            <p>Use <see cref="M:Dart.Sockets.Udp.Start(System.Threading.WaitCallback,System.Object)"/> to send or receive datagrams asynchronously, on a worker thread.</p>
+            </remarks>
+            <example>
+        The following example demonstrates sending and receiving between two Udp components.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates sending and receiving between two Udp components. 
+
+private void button1_Click(object sender, EventArgs e)
+{
+    //Start a Udp component to act as server
+    udpServer.Start(udpServer_Open, null);
+}
+
+private void button2_Click(object sender, EventArgs e)
+{
+    //Start a Udp component to act as client
+    udpClient.Start(udpClient_DoEcho, null);
+}
+
+private void udpServer_Open(object state)
+{
+    byte[] buffer = new byte[1024];
+    Datagram datagram = null;
+    serverIsOpen = true;
+    udpServer.Open(7);
+    do
+    {
+        datagram = udpServer.Receive(buffer);
+        if (datagram.Count > 0) udpServer.Send(buffer, datagram.Origin);
+    } while (serverIsOpen);
+    udpServer.Close();
+}
+
+private void udpClient_DoEcho(object state)
+{
+    //Send message, receive response and close
+    byte[] buffer = new byte[1024];
+    udpClient.Open(0);
+    udpClient.Send("hello world!", "127.0.0.1", 7);
+    Datagram datagram = udpClient.Receive(buffer);
+    udpClient.Marshal(datagram.ToString(), null); //marshal data to UI thread
+    udpClient.Close();
+}
+
+private void udpClient_UserState(object sender, UserStateEventArgs e)
+{
+    MessageBox.Show(e.Message);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates sending and receiving between two Udp components. 
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start a Udp component to act as server
+	udpServer.Start(AddressOf udpServer_Open, Nothing)
+End Sub
+
+Private Sub button2_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start a Udp component to act as client
+	udpClient.Start(AddressOf udpClient_DoEcho, Nothing)
+End Sub
+
+Private Sub udpServer_Open(ByVal state As Object)
+	Dim buffer() As Byte = New Byte(1023){}
+	Dim datagram As Datagram = Nothing
+	serverIsOpen = True
+	udpServer.Open(7)
+	Do
+		datagram = udpServer.Receive(buffer)
+		If datagram.Count &gt; 0 Then
+		udpServer.Send(buffer, datagram.Origin)
+		End If
+	Loop While serverIsOpen
+	udpServer.Close()
+End Sub
+
+Private Sub udpClient_DoEcho(ByVal state As Object)
+	'Send message, receive response and close
+	Dim buffer() As Byte = New Byte(1023){}
+  udpClient.Open(0);
+	udpClient.Send("hello world!", "127.0.0.1", 7)
+	Dim datagram As Datagram = udp.Receive(buffer)
+	udpClient.Marshal(datagram.ToString(), Nothing) 'marshal data to UI thread
+	udpClient.Close()
+End Sub
+
+Private Sub udpClient_UserState(ByVal sender As Object, ByVal e As UserStateEventArgs)
+	MessageBox.Show(e.Message)
+End Sub
+        </code>
+      </example>
+            <example>The following example demonstrates joining and leaving a multicast group.
+      <code lang="C#">
+//The following example demonstrates joining and leaving a multicast group.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    byte[] buffer = new byte[1024];
+    System.Net.IPAddress groupIP = new IPEndPoint("234.5.6.7", 0).Address;
+    udp1.Open(59877);
+    udp1.JoinMulticastGroup(groupIP);
+    udp1.Send("hello world", new IPEndPoint(groupIP, 59877));
+    udp1.Receive(buffer);
+    udp1.LeaveMulticastGroup(groupIP);
+}
+        </code>
+				<code lang="VB">
+'The following example demonstrates joining and leaving a multicast group.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	Dim buffer() As Byte = New Byte(1023){}
+	Dim groupIP As System.Net.IPAddress = New IPEndPoint("234.5.6.7", 0).Address
+	udp1.Open(59877)
+	udp1.JoinMulticastGroup(groupIP)
+	udp1.Send("hello world", New IPEndPoint(groupIP, 59877))
+	udp1.Receive(buffer)
+	udp1.LeaveMulticastGroup(groupIP)
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="F:Dart.Sockets.Udp.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Udp.#ctor">
+            <summary>
+            Initializes a new Udp object.
+            </summary>
+            <remarks>
+            <p>The default constructor initializes a new Udp object.</p>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Udp.#ctor(System.ComponentModel.IContainer)">
+            <summary>
+            Initializes a new Udp object.
+            </summary>
+            <param name="container">The IContainer which contains the object.</param>
+            <remarks>
+            <p>Use this constructor to add the Udp component to the IContainer container.</p>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Udp.Dispose(System.Boolean)">
+            <summary>
+            Releases all resources associated with the object.
+            </summary>
+            <param name="disposing">true when a user calls Dispose; false when called by a finalizer.</param>
+        </member>
+        <member name="M:Dart.Sockets.Udp.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Udp.Start(System.Threading.WaitCallback,System.Object)">
+            <summary>
+            Starts a worker thread on which the specified delegate method executes.  
+            </summary>
+            <param name="worker"><see cref="T:System.Threading.WaitCallback"/> delegate specifying the function to execute.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides an easy means for executing blocking functions on a worker thread. 
+                Applications with a UI thread should use this technique to execute processes (like Receive) that can block the UI thread.
+                </para>
+                <para>
+                The <i>state</i> parameter can be <b>null</b> for cases in which no state information needs to be passed to the worker delegate function.
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>
+        The following example demonstrates sending and receiving between two Udp components.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates sending and receiving between two Udp components. 
+
+private void button1_Click(object sender, EventArgs e)
+{
+    //Start a Udp component to act as server
+    udpServer.Start(udpServer_Open, null);
+}
+
+private void button2_Click(object sender, EventArgs e)
+{
+    //Start a Udp component to act as client
+    udpClient.Start(udpClient_DoEcho, null);
+}
+
+private void udpServer_Open(object state)
+{
+    byte[] buffer = new byte[1024];
+    Datagram datagram = null;
+    serverIsOpen = true;
+    udpServer.Open(7);
+    do
+    {
+        datagram = udpServer.Receive(buffer);
+        if (datagram.Count > 0) udpServer.Send(buffer, datagram.Origin);
+    } while (serverIsOpen);
+    udpServer.Close();
+}
+
+private void udpClient_DoEcho(object state)
+{
+    //Send message, receive response and close
+    byte[] buffer = new byte[1024];
+    udpClient.Open(0);
+    udpClient.Send("hello world!", "127.0.0.1", 7);
+    Datagram datagram = udpClient.Receive(buffer);
+    udpClient.Marshal(datagram.ToString(), null); //marshal data to UI thread
+    udpClient.Close();
+}
+
+private void udpClient_UserState(object sender, UserStateEventArgs e)
+{
+    MessageBox.Show(e.Message);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates sending and receiving between two Udp components. 
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start a Udp component to act as server
+	udpServer.Start(AddressOf udpServer_Open, Nothing)
+End Sub
+
+Private Sub button2_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start a Udp component to act as client
+	udpClient.Start(AddressOf udpClient_DoEcho, Nothing)
+End Sub
+
+Private Sub udpServer_Open(ByVal state As Object)
+	Dim buffer() As Byte = New Byte(1023){}
+	Dim datagram As Datagram = Nothing
+	serverIsOpen = True
+	udpServer.Open(7)
+	Do
+		datagram = udpServer.Receive(buffer)
+		If datagram.Count &gt; 0 Then
+		udpServer.Send(buffer, datagram.Origin)
+		End If
+	Loop While serverIsOpen
+	udpServer.Close()
+End Sub
+
+Private Sub udpClient_DoEcho(ByVal state As Object)
+	'Send message, receive response and close
+	Dim buffer() As Byte = New Byte(1023){}
+  udpClient.Open(0);
+	udpClient.Send("hello world!", "127.0.0.1", 7)
+	Dim datagram As Datagram = udp.Receive(buffer)
+	udpClient.Marshal(datagram.ToString(), Nothing) 'marshal data to UI thread
+	udpClient.Close()
+End Sub
+
+Private Sub udpClient_UserState(ByVal sender As Object, ByVal e As UserStateEventArgs)
+	MessageBox.Show(e.Message)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Udp.VirtualWorkerDelegate(Dart.Sockets.ComponentBase.WorkerWrapperParams)">
+            <summary>
+            Invokes the worker thread delegate.  Must be done here as DynamicInvoke does not exist on CF.
+            </summary>
+            <param name="p"></param>
+        </member>
+        <member name="T:Dart.Sockets.Tcp">
+            <summary>
+            The Tcp component simplifies the use of secure Tcp communications within any .NET application.
+            </summary>
+            <remarks>
+                <para>
+                The Tcp component establishes and manages TCP-level streams of data. 
+                Methods for establishing connections, and sending and receiving data simplify 
+                Tcp communications for the user, while still providing options for advanced customization.
+                Secure SSL connections and worker thread operation are fully supported.
+                </para>
+                <para>
+                The Tcp component can optionally be bound to a display control for easy user-interactive development.
+                </para>
+                <H4 class="dtH4">Using the Tcp Component</H4>
+                <para>
+                The Tcp component's clean interface provides clear, straight-forward use.
+                All methods calls are blocking calls, making programming an intuitive step-by-step process.
+                Functions can be passed to the <see cref="M:Dart.Sockets.Tcp.Start(System.Threading.WaitCallback,System.Object)">Start</see> method, to execute on worker threads without
+                blocking the user interface.
+                Marshaling data from these worker threads is made convenient using the overloaded Marshal methods. 
+                See the Asynchronous Operation page for more information on this topic.
+                </para>
+                <ul>
+                <li><para>
+                <b>Connecting:</b> Use the 
+                <see cref="M:Dart.Sockets.TcpBase.Connect(Dart.Sockets.TcpSession)">Connect</see> method.
+                Once connected, establish an optional secure connection using 
+                <see cref="M:Dart.Sockets.TcpBase.AuthenticateAsClient(Dart.Sockets.ClientSecurity)">AuthenticateAsClient</see>.
+                </para></li>
+                <li><para>
+                <b>Sending Data:</b>
+                Once a connection is established, send data using the <see cref="M:Dart.Sockets.TcpBase.Write(System.Byte[],System.Int32,System.Int32)">Write</see> method, 
+                which includes overloads for sending data as byte arrays or as strings.
+                </para></li>
+                <li><para>
+                <b>Receiving Data:</b>
+                Receive data using the <see cref="M:Dart.Sockets.TcpBase.Read(System.Byte[],System.Int32,System.Int32)">Read</see> method.
+                This method returns a <see cref="T:Dart.Sockets.Data">Data</see> object containing data read off the data stream.  
+                Data in this object can easily be converted to a string using its <see cref="M:Dart.Sockets.Data.ToString">ToString</see> method.
+                The Read method includes overloads for reading until a specified delimiter is found.
+                A set of delimiters can also be specified for situations in which one of several responses may be received.  
+                Marshal data to the <see cref="E:Dart.Sockets.TcpBase.Data">Data</see> event (on the UI thread) by calling the Marshal method.
+                </para></li>			
+                </ul>
+                <H4 class="dtH4">Binding the Tcp Component to a Display</H4>
+                <para>
+                Set the <see cref="P:Dart.Sockets.PtyBase.Pty">Pty</see> (pseudo terminal) property to bind the Telnet component to a display control 
+                derived from <see cref="T:System.Windows.Forms.TextBoxBase">TextBoxBase</see> 
+                (such as a standard <see cref="T:System.Windows.Forms.TextBox">TextBox</see>), 
+                and call <see cref="M:Dart.Sockets.TcpBase.Connect(Dart.Sockets.TcpSession)">Connect</see> to establish a connection to the specified host.  
+                Once connected, keystrokes will be sent automatically, and data received will appear in the text area. 
+                </para>
+            </remarks>
+            <example>The following example demonstrates simple Tcp read and write operations on a worker thread.
+				<code lang="C#">
+//The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    tcp1.Start(tcp1_Connect, null);
+}
+
+private void tcp1_Connect(object state)
+{
+    tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)));
+    tcp1.Write("hello world!");
+    byte[] buffer = new byte[1024];
+    tcp1.Marshal(tcp1.Read(buffer), "", null);
+    tcp1.Close();
+}
+
+void tcp1_Data(object sender, Dart.Sockets.DataEventArgs e)
+{
+    MessageBox.Show(e.Data.ToString());
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	tcp1.Start(AddressOf tcp1_Connect, Nothing)
+End Sub
+
+Private Sub tcp1_Connect(ByVal state As Object)
+	tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)))
+	tcp1.Write("hello world!")
+	Dim buffer() As Byte = New Byte(1023){}
+	tcp1.Marshal(tcp1.Read(buffer), "", Nothing)
+	tcp1.Close()
+End Sub
+
+Private Sub tcp1_Data(ByVal sender As Object, ByVal e As Dart.Sockets.DataEventArgs)
+	MessageBox.Show(e.Data.ToString())
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="F:Dart.Sockets.Tcp.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.#ctor">
+            <summary>
+            Initializes a new instance of the Tcp component.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.#ctor(System.ComponentModel.IContainer)">
+            <summary>
+            Initializes a new Tcp component.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+            Create a Tcp object from an accepted <see cref="T:System.Net.Sockets.Socket"/>.
+            </summary>
+            <param name="acceptedSocket">An existing Socket.</param>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.Start(System.Threading.WaitCallback,System.Object)">
+            <summary>
+            Start a worker thread on which the specified delegate function executes.  
+            </summary>
+            <param name="worker"><see cref="T:System.Threading.WaitCallback"/> delegate specifying the function to execute.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides an easy means for executing blocking functions on a worker thread. 
+                Applications with a UI thread should use this technique to execute processes (like Connect and Read) 
+                that can block the UI thread.
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the 
+                <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>The following example demonstrates simple Tcp read and write operations on a worker thread.
+				<code lang="C#">
+//The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+private void button1_Click(object sender, EventArgs e)
+{
+    tcp1.Start(tcp1_Connect, null);
+}
+
+private void tcp1_Connect(object state)
+{
+    tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)));
+    tcp1.Write("hello world!");
+    byte[] buffer = new byte[1024];
+    tcp1.Marshal(tcp1.Read(buffer), "", null);
+    tcp1.Close();
+}
+
+void tcp1_Data(object sender, Dart.Sockets.DataEventArgs e)
+{
+    MessageBox.Show(e.Data.ToString());
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates simple Tcp read and write operations on a worker thread.
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	tcp1.Start(AddressOf tcp1_Connect, Nothing)
+End Sub
+
+Private Sub tcp1_Connect(ByVal state As Object)
+	tcp1.Connect(new TcpSession(new Dart.Sockets.IPEndPoint("myEchoServer", 7)))
+	tcp1.Write("hello world!")
+	Dim buffer() As Byte = New Byte(1023){}
+	tcp1.Marshal(tcp1.Read(buffer), "", Nothing)
+	tcp1.Close()
+End Sub
+
+Private Sub tcp1_Data(ByVal sender As Object, ByVal e As Dart.Sockets.DataEventArgs)
+	MessageBox.Show(e.Data.ToString())
+End Sub
+        </code>
+			</example>
+        </member>
+        <member name="M:Dart.Sockets.Tcp.VirtualWorkerDelegate(Dart.Sockets.ComponentBase.WorkerWrapperParams)">
+            <summary>
+            Invokes the worker thread delegate.  Must be done here as DynamicInvoke does not exist on CF.
+            </summary>
+            <param name="p"></param>
+        </member>
+        <member name="T:Dart.Sockets.Server">
+            <summary>
+            The Server component provides a framework for building non-secure and secure server applications.
+            </summary>
+            <remarks>
+            <p> Use the Server component to listen for incoming connections. When a connection is
+            established from a TCP client, a new thread is created on which the server and client communicate. </p>
+            <p>What follows are short usage descriptions. For more information, see the appropriate member topic.</p>
+            <H4 class="dtH4">Using the Server Component</H4>
+            <p><b>Listening for connections:</b> Use Server.Start (specifying the port to listen on) to listen for incoming 
+            TCP connections.</p>
+            <p><b>Determining if the server is active:</b> The Socket property is non-null when the server is active.</p>
+            <p><b>Handling incoming connections:</b> When a TCP client connects to the server, a user-specified delegate is raised. 
+            A Tcp object is provided to the delegate, representing the client/server connection.
+            Use the Tcp object to send and receive data to/from the connected client (both synchronous and asynchronous operation 
+            is supported).</p>
+            <p><b>Stop accepting incoming connections:</b> Use <see cref="M:Dart.Sockets.Server.Close"/> to stop accepting incoming connections. 
+            Any existing connections will complete normally.</p>
+            <p><b>Stop the server and close all connections: </b> Use <see cref="M:Dart.Sockets.Server.Abort"/>.</p>
+            <p><b>Communicating securely: </b>
+            Call <see cref="M:Dart.Sockets.TcpBase.AuthenticateAsServer(Dart.Sockets.ServerSecurity)"/> 
+            for each incoming connection.</p>
+            </remarks>
+            <example>The following example demonstrates an echo server using dedicated worker threads.
+        <code lang="C#">
+//The following example demonstrates an echo server using dedicated worker threads.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    //Start the echo server on port 7
+    server1.Start(new ConnectThreadStart(acceptConnection), 7, null);
+}
+
+private void acceptConnection(TcpBase connection, object state)
+{
+    //While connection is open, echo data received back to client
+    byte[] buffer = new byte[1024];
+    do
+    {
+        Data data = connection.Read(buffer);
+        connection.Write(data.Buffer, data.Offset, data.Count);
+    } while (connection.State == Dart.Sockets.ConnectionState.Connected);
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates an echo server using dedicated worker threads.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start the echo server on port 7
+	server1.Start(New ConnectThreadStart(AddressOf acceptConnection), 7, Nothing)
+End Sub
+
+Private Sub acceptConnection(ByVal connection As TcpBase, ByVal state As Object)
+	'While connection is open, echo data received back to client
+	Dim buffer() As Byte = New Byte(1023){}
+	Do
+		Dim data As Data = connection.Read(buffer)
+		connection.Write(data.Buffer, data.Offset, data.Count)
+	Loop While connection.State = Dart.Sockets.ConnectionState.Connected
+End Sub
+        </code>
+      </example>
+            <example>
+        The following example demonstrates an echo server using async reads.
+      <code lang="C#">
+//The following example demonstrates an echo server using async reads.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    //Start the echo server on port 7
+    server1.Start(new ConnectThreadStart(acceptConnection), 7, null);
+}
+
+private void acceptConnection(TcpBase connection, object state)
+{
+    //While connection is open, echo data received back to client
+    byte[] buffer = new byte[1024];
+    connection.ReadAsync(buffer, 0, buffer.Length, 
+        new ReadAsyncCompleted(connection_ReadAsyncCompleted), null);
+}
+
+private void connection_ReadAsyncCompleted(TcpBase connection, Data data, object state)
+{
+    //Echo data received back to client and wait for more
+    if (data.Count &gt; 0)
+    {
+        connection.Write(data.Buffer, data.Offset, data.Count);
+        connection.ReadAsync(data.Buffer, 0, data.Buffer.Length, 
+            new ReadAsyncCompleted(connection_ReadAsyncCompleted), null);
+    }
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates an echo server using async reads.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start the echo server on port 7
+	server1.Start(New ConnectThreadStart(AddressOf acceptConnection), 7, Nothing)
+End Sub
+
+Private Sub acceptConnection(ByVal connection As TcpBase, ByVal state As Object)
+	'While connection is open, echo data received back to client
+	Dim buffer() As Byte = New Byte(1023){}
+	connection.ReadAsync(buffer, 0, buffer.Length, New ReadAsyncCompleted(AddressOf connection_ReadAsyncCompleted), Nothing)
+End Sub
+
+Private Sub connection_ReadAsyncCompleted(ByVal connection As TcpBase, ByVal data As Data, ByVal state As Object)
+	'Echo data received back to client and wait for more
+	If data.Count &gt; 0 Then
+		connection.Write(data.Buffer, data.Offset, data.Count)
+		connection.ReadAsync(data.Buffer, 0, data.Buffer.Length, New ReadAsyncCompleted(AddressOf connection_ReadAsyncCompleted), Nothing)
+	End If
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Server.#ctor(System.ComponentModel.IContainer)">
+            <summary>
+            Initializes a new Server inside a designer.
+            </summary>
+            <remarks>
+            	<p>Simply add the Server component to the form and the object will automatically be created and initialized
+            	using this constructor.</p>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Server.#ctor">
+            <summary>
+            Initializes a new Server.
+            </summary>
+            <remarks>
+            	<p>The default constructor dynamically initializes a new Server class.</p>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Server.Dispose(System.Boolean)">
+            <summary>
+            Releases all resources associated with the object.
+            </summary>
+            <param name="disposing">true when a user calls Dispose; false when called by a finalizer.</param>
+        </member>
+        <member name="F:Dart.Sockets.Server.Connections">
+            <summary>
+            Returns a List of Tcp objects representing active connections.
+            </summary>
+            <remarks>
+            <para>
+            When a client connects to the server, a Tcp object representing
+            the connection is added to <see cref="F:Dart.Sockets.Server.Connections"/> and the ConnectionsChanged event is raised. 
+            When the connection
+            is closed, the connection is removed from Connections and the ConnectionsChanged event is raised again.
+            </para>
+            <para>
+            Accessing the Connections collection is not thread-safe. Use "lock(server1.Connections)" (C# syntax) to ensure thread safety.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Server.Abort">
+            <summary>
+            Closes the listening socket and calls Close() on each active connection.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Server.Close">
+            <summary>
+            Closes the listening socket and allows each active connection to complete normally.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Server.Start(Dart.Sockets.ConnectThreadStart,System.Int32,System.Object)">
+            <summary>
+            Begin listening on the specified port using the default network interface and IPv4.
+            </summary>
+            <param name="worker">Delegate to be raised on an IO completion thread as each connection is accepted.</param>
+            <param name="localPort">Desired local port.</param>
+            <param name="state">User state information to be passed to the worker delegate.</param>
+            <remarks>
+            This method does not block. Sockets are accepted on IO completion threads and are reported to the specified worker delegate.
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.Server.Start(Dart.Sockets.ConnectThreadStart,System.Net.IPEndPoint,System.Object)">
+            <summary>
+            Begin listening on the specified IPEndPoint.
+            </summary>
+            <param name="worker">Delegate to be raised on an IO completion thread as each connection is accepted.</param>
+            <param name="localEP">Desired local endpoint.</param>
+            <param name="state">User state information be passed to the worker delegate.</param>
+            <remarks>
+            This method does not block. Connectionss are accepted on IO completion threads and are reported to the specified worker delegate.
+            </remarks>
+            <example>The following example demonstrates an echo server using dedicated worker threads.
+        <code lang="C#">
+//The following example demonstrates an echo server using dedicated worker threads.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    //Start the echo server on port 7
+    server1.Start(new ConnectThreadStart(acceptConnection), 7, null);
+}
+
+private void acceptConnection(TcpBase connection, object state)
+{
+    //While connection is open, echo data received back to client
+    byte[] buffer = new byte[1024];
+    do
+    {
+        Data data = connection.Read(buffer);
+        connection.Write(data.Buffer, data.Offset, data.Count);
+    } while (connection.State == Dart.Sockets.ConnectionState.Connected);
+}
+        </code>
+        <code lang="VB">
+'The following example demonstrates an echo server using dedicated worker threads.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	'Start the echo server on port 7
+	server1.Start(New ConnectThreadStart(AddressOf acceptConnection), 7, Nothing)
+End Sub
+
+Private Sub acceptConnection(ByVal connection As TcpBase, ByVal state As Object)
+	'While connection is open, echo data received back to client
+	Dim buffer() As Byte = New Byte(1023){}
+	Do
+		Dim data As Data = connection.Read(buffer)
+		connection.Write(data.Buffer, data.Offset, data.Count)
+	Loop While connection.State = Dart.Sockets.ConnectionState.Connected
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Server.OnConnectionsChanged(Dart.Sockets.ConnectionsChangedEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.Server.ConnectionsChanged"/> event.
+            </summary>
+            <remarks>
+            <para>
+            If the Synchronizing property is set, this method asynchronously invokes the <see cref="E:Dart.Sockets.Server.ConnectionsChanged"/> event on the UI thread.
+            If the Synchronizing property is null, this method invokes the event on the executing thread.
+            </para>
+            <para>
+            This method allows derived classes to handle the event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnConnectionsChanged in a derived class, 
+            be sure to call the base class OnConnectionsChanged method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.Server.Backlog">
+            <summary>
+            The maximum length of the pending connections queue.
+            </summary>
+            <remarks>This value is used as a parameter to the <see cref="M:System.Net.Sockets.Socket.Listen(System.Int32)">Socket.Listen</see> method.</remarks>
+        </member>
+        <member name="E:Dart.Sockets.Server.ConnectionsChanged">
+            <summary>
+            Raised after the <see cref="F:Dart.Sockets.Server.Connections"/> list has changed.
+            </summary>
+            <remarks>
+                <para>
+                This event is raised on the UI thread so that data can be used with UI components.
+                </para>
+                <para>
+                See <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> for important information on updating UI controls
+                from within this event.
+                </para>
+            </remarks>
+        </member>
+        <member name="T:Dart.Sockets.ConnectionsChangedEventArgs">
+            <summary>
+            Provides data for the ConnectionsChanged event.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ConnectionsChangedEventArgs.#ctor(Dart.Sockets.Tcp)">
+            <summary>
+            Initializes a new ConnectionsChangedEventArgs.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.ConnectionsChangedEventArgs.Connection">
+            <summary>
+            Gets the Tcp object provided by the <see cref="E:Dart.Sockets.Server.ConnectionsChanged">ConnectionsChanged</see> event.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ConnectThreadStart">
+            <summary>
+            Represents the method that will execute on a worker thread after each TCP connection is accepted. 
+            </summary>
+            <param name="tcp">The Tcp object used to manage the accepted connection.</param>
+            <param name="state">Any additional information provided by the user.</param>
+        </member>
+        <member name="T:Dart.Sockets.IPEndPoint">
+            <summary>
+            Allows user to specify a range of IPEndPoints for local binding. Also resolves hostnames and saves them for future use.
+            </summary>
+            <remarks>
+            Used to specify a local IPEndPoint using a possible range of ports. It is useful for configuring a connection
+            for firewall penetration. The default value of Address is IPAddress.Any and the default value of Port and Range are 0.
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor">
+            <summary>
+            Creates an IPEndPoint using IPAddress.Any and an ephemeral port (0).
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.Net.Sockets.AddressFamily)">
+            <summary>
+            Creates an IPEndPoint using IPAddress.Any or IPAddress.IPv6Any and an ephemeral port (0).
+            </summary>
+            <param name="addressFamily">AddressFamily to match.</param>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.Net.IPAddress,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using a specified IPAddress and port.
+            </summary>
+            <param name="address">An IPv4 or IPv6 address.</param>
+            <param name="port">The port to bind to.</param>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.Net.IPAddress,System.Int32,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using an IPAddress, port, and port range.
+            </summary>
+            <param name="address">An IPv4 or IPv6 address.</param>
+            <param name="port">The port to bind to.</param>
+            <param name="range">The range of ports, starting at port, to attempt to bind to.</param>
+            <para>
+            The socket will try to bind to the specified <i>port</i>. Upon failure, it will try to bind to each 
+            successive port up to (<i>port</i> + <i>range</i>), until successful. 
+            An Exception is raised if all binding attempts fail.
+            </para>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.String,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using a hostname or address, and port.
+            </summary>
+            <param name="hostNameOrAddress">An IP4 hostname or string address (IP4 or IP6). Empty string resolves to the localhost.</param>
+            <param name="port">The port to bind to.</param>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.String,System.Net.Sockets.AddressFamily,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using a hostname or address, port, and AddressFamily.
+            </summary>
+            <param name="hostNameOrAddress">A hostname or string address. Empty string resolves to the localhost.</param>
+            <param name="addressFamily">The <see cref="T:System.Net.Sockets.AddressFamily"/> to match if resolving a hostname.</param>
+            <param name="port">The port to bind to.</param>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.String,System.Net.Sockets.AddressFamily,System.Int32,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using a hostname or address, address family, port and range.
+            </summary>
+            <param name="hostNameOrAddress">A hostname or string address. Empty string resolves to the localhost.</param>
+            <param name="addressFamily">The <see cref="T:System.Net.Sockets.AddressFamily"/> to match if resolving a hostname.</param>
+            <param name="port">The port to bind to.</param>
+            <param name="range">The range of ports, starting at port, to attempt to bind to.</param>
+            <remarks>
+            <para>
+            The socket will try to bind to the specified <i>port</i>. Upon failure, it will try with each 
+            successive port up to (<i>port</i> + <i>range</i>), until successful. 
+            An Exception is raised if all binding attempts fail.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Dart.Sockets.IPEndPoint.#ctor(System.String,System.String,System.Int32,System.Int32)">
+            <summary>
+            Creates an IPEndPoint using a hostname or address, address, port and range.
+            </summary>
+            <param name="hostNameOrAddress">A hostname or string address. Empty string resolves to the localhost.</param>
+            <param name="address">The IPAddress in string notation.</param>
+            <param name="port">The port to bind to.</param>
+            <param name="range">The range of ports, starting at port, to attempt to bind to.</param>
+            <remarks>
+            <para>
+            This constructor is typically used to serialize the IPEndPoint. The hostname can be needed for some proxies.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:Dart.Sockets.IPEndPoint.Range">
+            <summary>
+            The socket will be bound to a port between IPEndPoint.Port and (IPEndPoint.Port + Range), inclusive.
+            </summary>
+            <remarks>Defaults to 0.</remarks>
+        </member>
+        <member name="P:Dart.Sockets.IPEndPoint.HostNameOrAddress">
+            <summary>
+            Gets or sets the host name or address resolved to create this IPEndPoint.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.IPEndPoint.Port">
+            <summary>
+            Gets or sets the port number of the endpoint.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ProxyType">
+            <summary>
+            Enumerates the proxy support provided by this product.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ProxyType.None">
+            <summary>
+            No server proxy is to be used.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ProxyType.Http">
+            <summary>
+            An HTTP server proxy is to be used.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ProxyType.Socks4">
+            <summary>
+            A SOCKS4 server proxy is to be used.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.ProxyType.Socks5">
+            <summary>
+            A SOCKS5 server proxy is to be used.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Proxy">
+            <summary>
+            Describes the server proxy, if any, to connect to.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Proxy.RemoteEndPoint">
+            <summary>
+            IPEndPoint of the server proxy to connect to.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Proxy.Password">
+            <summary>
+            The password to send to the server proxy. Not used for Socks4.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Proxy.Type">
+            <summary>
+            The <see cref="T:Dart.Sockets.ProxyType"/> desired.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Proxy.Username">
+            <summary>
+            The username to send to the server proxy.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ProxyBase">
+            <summary>
+            Base class for all proxy servers.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ProxyBase.#ctor(Dart.Sockets.Proxy)">
+            <summary>
+            Base constructor.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ProxyBase.Connect(System.Net.Sockets.Socket,Dart.Sockets.IPEndPoint,System.Text.Encoding)">
+            <summary>
+            Abstract method overridden by derived classes.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Socks4">
+            <summary>
+            A Socks4 proxy. Assign an instance to Proxy.
+            </summary>
+            <remarks>
+            Socks4 connection requests are created using the destination server IP: do not use if specifying 
+            the destination by host name, and the client is unable to resolve it.
+            </remarks>
+        </member>
+        <member name="F:Dart.Sockets.Socks4.DefaultPort">
+            <summary>
+            The "well-known" default port 1080 used by many Socks proxies.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Socks4.#ctor(Dart.Sockets.Proxy)">
+            <summary>
+            Constructor for using a Socks4 proxy.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Socks5">
+            <summary>
+            A Socks5 proxy. Assign an instance to Proxy.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Socks5.DefaultPort">
+            <summary>
+            The "well-known" default port 1080 used by many Socks proxies.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Socks5.#ctor(Dart.Sockets.Proxy)">
+            <summary>
+            Constructor for using a Socks5 proxy. If the username is string.Empty, User/Pass authentication is not used.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Socks5.Connect(System.Net.Sockets.Socket,Dart.Sockets.IPEndPoint,System.Text.Encoding)">
+            <summary>
+            Connect to server using either serverEP or hostNameOrAddress.
+            </summary>
+            <param name="socket"></param>
+            <param name="serverEP"></param>
+            <param name="encoding"></param>
+        </member>
+        <member name="T:Dart.Sockets.Http">
+            <summary>
+            An HTTP proxy.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Http.DefaultPort">
+            <summary>
+            The "well-known" default port 8080 used by many Http proxies.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Http.#ctor(Dart.Sockets.Proxy)">
+            <summary>
+            Constructor for using an Http proxy. If the username is string.Empty, the Proxy-Authorization header is not sent.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Ping">
+            <summary>
+            Provides classes and methods for Pinging (sending ICMP Echo requests).
+            </summary>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Ping.#ctor(System.ComponentModel.IContainer)">
+            <summary>
+            Create a Ping component using the designer.
+            </summary>
+            <param name="container">The IContainer which contains the object.</param>
+        </member>
+        <member name="M:Dart.Sockets.Ping.#ctor">
+            <summary>
+            Create a Ping component.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Ping.Start(Dart.Sockets.PingThreadStart,System.Object)">
+            <summary>
+            Starts a worker thread on which the specified delegate function executes.  
+            </summary>
+            <param name="worker">PingThreadStart delegate specifying the function to execute.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides a convenient means for executing blocking functions on a worker thread. 
+                Applications with a UI thread should use this technique to execute processes (like multiple Pings) that can block the UI thread.
+                </para>
+                <para>
+                The local IP interface defaults to IPAddress.Any and the Ping.Type defaults to Ping.Type.Raw.
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Ping.Start(Dart.Sockets.PingThreadStart,System.Net.IPAddress,Dart.Sockets.Ping.Type,System.Object)">
+            <summary>
+            Starts a worker thread on which the specified delegate function executes.  
+            </summary>
+            <param name="worker">PingThreadStart delegate specifying the function to execute.</param>
+            <param name="localAddress">The local IP interface desired.</param>
+            <param name="type">The <see cref="T:Dart.Sockets.Ping.Type"/> of Echo technology desired.</param>
+            <param name="state">Information to pass to the worker delegate function; can be null.</param>
+            <remarks>
+                <para>
+                This method provides a convenient means for executing blocking functions on a worker thread. 
+                Applications with a UI thread should use this technique to execute processes (like multiple Pings) that can block the UI thread.
+                </para>
+                <para>
+                Unhandled exceptions occurring on the worker thread will be caught and reported by the <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+                </para>
+            </remarks>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Ping.VirtualWorkerDelegate(Dart.Sockets.ComponentBase.WorkerWrapperParams)">
+            <summary>
+            Invokes the worker thread delegate.  Must be done here as DynamicInvoke does not exist on CF.
+            </summary>
+            <param name="p"></param>
+        </member>
+        <member name="M:Dart.Sockets.Ping.Marshal(Dart.Sockets.Echo[])">
+            <summary>
+            Marshals an array of Echo objects to the UI thread.
+            </summary>
+            <param name="echoes">The Echo objects to be marshaled.</param>
+            <remarks>
+                <para>
+                This method is used to marshal Ping echoes from a worker thread to the UI thread for typical display purposes.  
+                It calls the <see cref="M:Dart.Sockets.Ping.OnEcho(Dart.Sockets.EchoEventArgs)"/> method, which raises the <see cref="E:Dart.Sockets.Ping.Echo">Echo</see> event.
+                </para>
+                <para>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+                </para>
+            </remarks>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.Ping.OnEcho(Dart.Sockets.EchoEventArgs)">
+            <summary>
+            Raises the <see cref="E:Dart.Sockets.Ping.Echo"/> event.
+            </summary>
+            <param name="e">An <see cref="T:Dart.Sockets.EchoEventArgs">EchoEventArgs</see> object that contains the event data.</param>
+            <remarks>
+            If the Synchronizing property is set, this method asynchronously invokes the <see cref="E:Dart.Sockets.Ping.Echo"/> event on the UI thread.
+            If the Synchronizing property is null, this method invokes the event on the executing thread.
+            <para>
+            This method allows derived classes to handle the event without attaching a delegate, but marshaling is not provided.
+            This is the preferred technique for handling the event in a derived class.
+            </para>
+            <para>
+            <b>Note to Inheritors:</b> When overriding OnEcho in a derived class, 
+            be sure to call the base class OnEcho method, so that registered delegates receive the event. 
+            </para>
+            <para>
+            See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+            updating UI controls in your event handler.
+            </para>
+            </remarks>
+        </member>
+        <member name="E:Dart.Sockets.Ping.Echo">
+            <summary>
+            Raised when <see cref="M:Dart.Sockets.Ping.Marshal(Dart.Sockets.Echo[])"/> is used.
+            </summary>
+            <remarks>
+                See the <see cref="P:Dart.Sockets.ComponentBase.SynchronizingObject">SynchronizingObject</see> property for information on 
+                updating UI controls in your event handler.
+            </remarks>
+        </member>
+        <member name="T:Dart.Sockets.Ping.Type">
+            <summary>
+            Controls the software technology used to create the Ping.
+            </summary>
+            <remarks>
+            <para>Ping broadcasting is only supported when <see cref="T:Dart.Sockets.Ping.Type"/> is set to Type.Raw.
+            When set to Type.System, only the first responding system is returned.</para>
+            </remarks>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Type.System">
+            <summary>
+            The system icmp.dll will be used to generate and receive the Ping.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Type.Raw">
+            <summary>
+            A raw socket will be created to send and receive the ping. Administrator privileges may be required. Supports broadcasting.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Ping.Status">
+            <summary>
+            Enumerates the status of the ICMP echo request.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.Success">
+            <summary>
+            Request succeeded.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.BufferTooSmall">
+            <summary>
+            Reply buffer was too small.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.NetworkUnreachable">
+            <summary>
+            Destination netword was unreachable.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.HostUnreachable">
+            <summary>
+            Destination host was unreachable.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.ProtocolUnreachable">
+            <summary>
+            Destination protocol was unreachable.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.PortUnreachable">
+            <summary>
+            Destination port was unreachable.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.NoResources">
+            <summary>
+            Insufficient IP resources were available.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.BadIpOption">
+            <summary>
+            A bad IP option was specified.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.HardwareError">
+            <summary>
+            A hardware error occurred.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.PacketTooBig">
+            <summary>
+            The packet was too big.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.RequestTimedOut">
+            <summary>
+            Request timed out.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.BadRequest">
+            <summary>
+            Bad request.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.BadRoute">
+            <summary>
+            Bad route.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.TtlExpiredTransit">
+            <summary>
+            The time to live (ttl) expired in transit. Used for TraceRoute.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.TtlExpiredReassembly">
+            <summary>
+            The time to live (ttl) expired during fragment reassembly.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.ParameterProblem">
+            <summary>
+            A parameter problem.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.SourceQuench">
+            <summary>
+            Datagrams are arriving too fast to be processed and datagrams may have been dropped.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.OptionTooBig">
+            <summary>
+            An IP option was too big.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.BadDestination">
+            <summary>
+            A bad destination.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.Prohibited">
+            <summary>
+            Communication with destination administratively prohibited.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Ping.Status.GeneralFailure">
+            <summary>
+            A general failure indicating a malformed ICMP packet.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.PingThreadStart">
+            <summary>
+            Represents the method that will execute on a worker thread when <see cref="M:Dart.Sockets.Ping.Start(Dart.Sockets.PingThreadStart,System.Net.IPAddress,Dart.Sockets.Ping.Type,System.Object)">Start</see> is used. 
+            </summary>
+            <param name="slave">The PingSlave object that is independent of all other worker threads.</param>
+            <param name="state">Any additional information provided by the user.</param>
+        </member>
+        <member name="T:Dart.Sockets.EchoEventArgs">
+            <summary>
+            Provides data for the Echo event.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.EchoEventArgs.Echoes">
+            <summary>
+            Gets the Echo result from the Ping.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.PingSlave">
+            <summary>
+            Used on each worker thread to provide a series of ICMP Echo (Ping) requests.
+            </summary>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="M:Dart.Sockets.PingSlave.#ctor(System.Net.IPAddress,Dart.Sockets.Ping.Type)">
+            <summary>
+            Creates an object that manages ICMP Echo requests.
+            </summary>
+            <param name="localAddress">A IPAddress that establishes from which IP interface requests will originate.</param>
+            <param name="type">Specifies what technology will be used to create the Echo request.</param>
+            <remarks>The IPAddress.AddressFamily of the local EndPoint MUST match the AddressFamily of destination hosts.</remarks>
+        </member>
+        <member name="M:Dart.Sockets.PingSlave.GetEchoes(System.Net.IPAddress,System.Byte[],System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Send an ICMP Echo request and block until all responses are received.
+            </summary>
+            <param name="address">The host where the Echo request is sent (can be a broadcast address).</param>
+            <param name="data">The data to send in the Echo request.</param>
+            <param name="ttl">The maximum number of hops the request should take before expiring.</param>
+            <param name="timeout">The number of milliseconds to wait for responses to arrive.</param>
+            <param name="broadcast">If true, multiple socket receives will be used until the socket times out. 
+            If false, only one socket receive is used.</param>
+            <returns>One or more <see cref="T:Dart.Sockets.Echo"/> responses.</returns>
+            <remarks>
+            <para>This method will block until it times out while performing a socket receive.</para>
+            <para>Ping broadcasting is supported when <see cref="T:Dart.Sockets.Ping.Type"/> is set to Type.Raw.
+            When set to Type.System, only the first responding system is returned.</para>
+            </remarks>
+            <example>
+        The following example demonstrates pinging a remote host.
+        <code lang="C#">
+          <![CDATA[
+//The following example demonstrates pinging a remote host.          
+
+private void button1_Click(object sender, EventArgs e)
+{
+    ping1.Start(ping1_Results, null);
+}
+
+private void ping1_Results(PingSlave slave, object state)
+{
+    ping1.Marshal(slave.GetEchoes(new IPEndPoint("www.dart.com", 0).Address, null, 20, 5000, false));
+}
+
+void ping1_Echo(object sender, EchoEventArgs e)
+{
+    string results = "The following echoes were returned:\r\n";
+    for (int i = 0; i < e.Echoes.Length; i++)
+        results += e.Echoes[i].ToString() + "\r\n";
+    MessageBox.Show(results);
+}
+        ]]>
+        </code>
+        <code lang="VB">
+'The following example demonstrates pinging a remote host.          
+
+Private Sub button1_Click(ByVal sender As Object, ByVal e As EventArgs)
+	ping1.Start(AddressOf ping1_Results, Nothing)
+End Sub
+
+Private Sub ping1_Results(ByVal slave As PingSlave, ByVal state As Object)
+	ping1.Marshal(slave.GetEchoes(New IPEndPoint("www.dart.com", 0).Address, Nothing, 20, 5000, False))
+End Sub
+
+Private Sub ping1_Echo(ByVal sender As Object, ByVal e As EchoEventArgs)
+	Dim results As String = "The following echoes were returned:" &amp; Constants.vbCrLf
+	For i As Integer = 0 To e.Echoes.Length - 1
+		results &amp;= e.Echoes(i).ToString() &amp; Constants.vbCrLf
+	Next i
+	MessageBox.Show(results)
+End Sub
+        </code>
+      </example>
+        </member>
+        <member name="F:Dart.Sockets.PingSlave.LocalAddress">
+            <summary>
+            Sets and returns an IPAddress that indicates the network interface that should originate the ICMP Echo request.
+            </summary>
+            <remarks>
+            Used for icmp.dll
+            </remarks>
+        </member>
+        <member name="F:Dart.Sockets.PingSlave.Type">
+            <summary>
+            Controls the software technique used to create the Ping.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Echo">
+            <summary>
+            Encapsulates an echo response from a server.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Echo.RoundTripTime">
+            <summary>
+            Returns the time spanned between sending and receiving a response to the echo request.
+            </summary>
+            <value>
+            A TimeSpan object.
+            </value>
+        </member>
+        <member name="F:Dart.Sockets.Echo.Address">
+            <summary>
+            Returns the IP address of the remote host.
+            </summary>
+            <value>
+            An IPAddress for the remote host.
+            </value>
+        </member>
+        <member name="F:Dart.Sockets.Echo.Broadcast">
+            <summary>
+            Indicates whether Echo originated as an IPv4 broadcast request to address IPAddress.Broadcast (255.255.255.255).
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Echo.Data">
+             <summary>
+             Returns data returned from the echo request.
+             </summary>
+             <remarks>
+             <para>
+             When a ping request is sent, any data included in the packet is returned to the sender.
+             </para>
+             </remarks>
+             <value>
+             A byte array representing the data sent to and subsequently returned from the remote host.
+            </value>
+        </member>
+        <member name="F:Dart.Sockets.Echo.Status">
+            <summary>
+            The status (success or otherwise) of the echo request.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.Echo.Ttl">
+            <summary>
+            Returns the TTL (time to live) for the packet.
+            </summary>
+            <remarks>
+            <para>In practice TTL is decremented at each router the packet arrives at. 
+            A packet with a TTL of 0 will be discarded.
+            </para>
+            </remarks>
+            <value>
+            Returns an integer value representing the TTL for the packet.
+            </value>
+        </member>
+        <member name="M:Dart.Sockets.Echo.ToString">
+            <summary>
+            Returns a string containing information regarding the Echo.
+            </summary>
+            <returns>A string representing the echo.</returns>
+        </member>
+        <member name="T:Dart.Sockets.TcpSocketOption">
+            <summary>
+            Contains socket options that may be set by TCP sockets.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.TcpSocketOption.KeepAliveTime">
+            <summary>
+            The connection idle time in milliseconds before TCP will begin sending keepalives.
+            </summary>
+            <remarks>Set to 0 to disable keepalives. Defaults to 7,200,000 (2 hours).</remarks>
+        </member>
+        <member name="P:Dart.Sockets.TcpSocketOption.KeepAliveInterval">
+            <summary>
+            The time in milliseconds between retransmission of keepalives once the KeepAliveTime has expired.
+            </summary>
+            <remarks>
+            Once KeepAliveTime has expired, keepalives are sent every KeepAliveInterval milliseconds unitl a response
+            is received, up to a maximum of established by MaxDataRetries before the connection is terminated.
+            The default is 1000 (1 sec).
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.TcpSocketOption.NoDelay">
+            <summary>
+            Gets or sets a value that disables the use of Nagle's algorithm so that data is sent immediately.
+            </summary>
+            <value>False if Nagle's algorithm is used; otherwise true. The default value is false.</value>
+            <remarks>
+                <para>
+                When small pieces of data (such as single bytes) are send many times consecutively, inefficient packets 
+                can be sent with one byte of useful data and 40 bytes of header information. 
+                Nagle's algorithm specifies that this type of data should be automatically concatenated and sent in a single packet. 
+                When true, Nagle's algorithm is defeated and data is immediately sent in a dedicated packet. 
+                When false, Nagle's algorithm is used and consecutive Socket Send calls might send data in a single (more efficient) packet.
+                </para>
+                <para>
+                Setting this property to true may result in a speed optimization (because packets are sent immediately, 
+                without having to wait to see if Send is called again). 
+                Setting this property to false results in data being transmitted more efficiently.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.TcpSocketOption.OutOfBandInline">
+            <summary>
+            Gets or sets a value that indicates whether out-of-band (urgent) data is read as normal in-line data. 
+            </summary>
+            <value>True if urgent data is to be read as normal in-line data, otherwise false. The default value is false.</value>
+            <remarks>
+                <para>
+                When the "urgent" socket flag is set, the packet contains data that should be acted upon before "non-urgent" data. 
+                Setting this property to true will cause this urgent data to be read in-line. 
+                To minimize interoperability problems, developers are advised not to use out-of-band data unless it is required
+                to interoperate with an existing service.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Dart.Sockets.TcpSocketOption.ReceiveTimeout">
+            <summary>
+            Gets or sets a value that specifies the amount of time after which the underlying TCP Socket.Receive call will time out.
+            </summary>
+            <value>The time-out value in milliseconds. The default value is 0, which indicates an infinite time-out period.</value>
+            <remarks>
+                <para>
+                A value of 0 or -1 indicates an infinite time-out period.
+                </para>
+            </remarks>
+            
+        </member>
+        <member name="T:Dart.Sockets.LogStream">
+            <summary>
+            Used to report logging information to TcpBase
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.TcpSession">
+            <summary>
+            Provides a holder for parameters used to establish a TCP session.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.Session">
+            <summary>
+            Provides a holder for parameters used to establish a session.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Session.#ctor">
+            <summary>
+            Default constructor for Session.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.Session.#ctor(Dart.Sockets.IPEndPoint)">
+            <summary>
+            Constructor for Session with a Remote IPEndPoint parameter.
+            </summary>
+            <param name="remoteEP">The remote IPEndPoint to connect to.</param>
+        </member>
+        <member name="P:Dart.Sockets.Session.RemoteEndPoint">
+            <summary>
+            EndPoint of the remote host to connect to.
+            </summary>
+        </member>
+        <member name="P:Dart.Sockets.Session.LocalEndPoint">
+            <summary>
+            EndPoint to bind to locally.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.TcpSession.#ctor">
+            <summary>
+            Default constructor for TcpSession.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.TcpSession.#ctor(Dart.Sockets.IPEndPoint)">
+            <summary>
+            Constructor for TcpSession with a Remote IPEndPoint parameter.
+            </summary>
+            <param name="remoteEP">The remote IPEndPoint to connect to.</param>
+        </member>
+        <member name="P:Dart.Sockets.TcpSession.Proxy">
+            <summary>
+            Defines the optional server proxy configuration.
+            </summary>
+            <remarks>
+            Use this property to define the server proxy configuration.
+            </remarks>
+        </member>
+        <member name="T:Dart.Sockets.DataException">
+            <summary>
+            Thrown when the expected data could not be read.
+            </summary>
+        </member>
+        <member name="F:Dart.Sockets.DataException.DataRead">
+            <summary>
+            Data read from the socket before a failure generated this exception.
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ReadAsyncCompleted">
+            <summary>
+            Represents the method that will execute on an IO completion thread after data is asynchronously received. 
+            </summary>
+            <param name="tcp">The TcpBase object used to manage the connection.</param>
+            <param name="data">The Data object containing received data.</param>
+            <param name="state">Any additional information provided by the user.</param>
+        </member>
+        <member name="T:Dart.Sockets.ReadAsyncStream">
+            <summary>
+            Provides a mechanism to queue buffered data into the stream that may be subsequently Read().
+            </summary>
+        </member>
+        <member name="T:Dart.Sockets.ErrorEventArgs">
+            <summary>
+            Provides data for the <see cref="E:Dart.Sockets.ComponentBase.Error">Error</see> event.
+            </summary>
+        </member>
+        <member name="M:Dart.Sockets.ErrorEventArgs.#ctor(System.Exception)">
+            <summary>
+            Save an exception within this class.
+            </summary>
+            <param name="exception">Exception to save.</param>
+        </member>
+        <member name="M:Dart.Sockets.ErrorEventArgs.GetException">
+            <summary>
+            Returns the Exception marshaled to the UI thread.
+            </summary>
+            <returns>Exception</returns>
+        </member>
+    </members>
+</doc>

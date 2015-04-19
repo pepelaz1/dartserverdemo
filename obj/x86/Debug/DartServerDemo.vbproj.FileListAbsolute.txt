@@ -1,0 +1,77 @@
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\bin\Debug\DartServerDemo.exe.config
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\bin\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\bin\Debug\DartServerDemo.pdb
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\bin\Debug\Dart.Sockets.dll
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\bin\Debug\Dart.Sockets.xml
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\DartServerDemo.MainDialog.resources
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\Resources.resources
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\DartServerDemo.exe.licenses
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\DartServerDemoVB2\DartServerDemo VB\obj\x86\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.exe.config
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.exe
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.exe
+C:\Work\vworker\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo\bin\Debug\Dart.Sockets.xml
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.MainDialog.resources
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\Resources.resources
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+C:\Work\vworker\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.exe.licenses
+D:\Work\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.exe.config
+D:\Work\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.exe
+D:\Work\MQEA\Dart\dartserverdemo\bin\Debug\DartServerDemo.pdb
+D:\Work\MQEA\Dart\dartserverdemo\bin\Debug\Dart.Sockets.dll
+D:\Work\MQEA\Dart\dartserverdemo\bin\Debug\Dart.Sockets.xml
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.MainDialog.resources
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\Resources.resources
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.exe
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.pdb
+D:\Work\MQEA\Dart\dartserverdemo\obj\x86\Debug\DartServerDemo.exe.licenses
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\bin\Debug\DartServerDemo.exe.config
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\DartServerDemo.pdb
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\bin\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\bin\Debug\DartServerDemo.pdb
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\bin\Debug\Dart.Sockets.dll
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\bin\Debug\Dart.Sockets.xml
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\DartServerDemo.MainDialog.resources
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\Resources.resources
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+C:\Users\User\Desktop\Vladimir\fix lable update 09_24.08.2012_07.7PM\dartserverdemo\obj\x86\Debug\DartServerDemo.exe.licenses
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.exe.config
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.exe
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.pdb
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.exe
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.pdb
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\bin\Debug\Dart.Sockets.dll
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\bin\Debug\Dart.Sockets.xml
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.MainDialog.resources
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\Resources.resources
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+D:\Work\MQEA\Dart\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.exe.licenses
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.exe.config
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\bin\Debug\DartServerDemo.pdb
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\bin\Debug\Dart.Sockets.dll
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\bin\Debug\Dart.Sockets.xml
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.MainDialog.resources
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\Resources.resources
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.exe.licenses
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.exe
+C:\Users\User\Desktop\Vladimir\fix lable update 10_24.08.2012_11.35PM\dartserverdemo_25.08.2012_3.48PM\obj\x86\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\bin\Debug\DartServerDemo.exe.config
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\DartServerDemo.exe
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\bin\Debug\DartServerDemo.exe
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\bin\Debug\DartServerDemo.pdb
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\bin\Debug\Dart.Sockets.dll
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\bin\Debug\Dart.Sockets.xml
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\DartServerDemo.MainDialog.resources
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\Resources.resources
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\DartServerDemo.vbproj.GenerateResource.Cache
+C:\Work\vworker\MQEA\Dart\dartserverdemo_27082012\obj\x86\Debug\DartServerDemo.exe.licenses
+C:\Work\vworker\MQEA\Dart\dartserverdemo\bin\Debug\Dart.Sockets.dll
